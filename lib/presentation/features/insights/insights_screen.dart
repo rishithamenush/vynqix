@@ -5,10 +5,12 @@ import '../../../core/extensions/context_x.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../domain/entities/stats.dart';
 import '../../providers/stats_providers.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/common.dart';
+import '../../widgets/page_body.dart';
 
 /// Plain-language analysis of the last 30 days.
 class InsightsScreen extends ConsumerWidget {
@@ -32,11 +34,14 @@ class InsightsScreen extends ConsumerWidget {
           error: e,
           onRetry: () => ref.invalidate(insightsProvider),
         ),
-        data: (insights) => ListView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screen,
+        data: (insights) => PageBody(
+          maxWidth: Breakpoints.readableContent,
+          applyGutter: false,
+          child: ListView(
+          padding: EdgeInsets.fromLTRB(
+            context.gutter,
             AppSpacing.md,
-            AppSpacing.screen,
+            context.gutter,
             AppSpacing.huge,
           ),
           children: [
@@ -77,6 +82,7 @@ class InsightsScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.md),
             ],
           ],
+        ),
         ),
       ),
     );

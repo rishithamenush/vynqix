@@ -105,11 +105,37 @@ mutations go through controllers (`TaskController`, `ReviewController`,
 
 | Decision | Rationale |
 | --- | --- |
+| **Focus Blue accent** | `#2563EB`. Task apps converge on blue because it reads calm and focused; indigo/violet reads as a creative or AI tool. Category hues were re-spaced so none sits near it — a category dot is never mistaken for a UI accent. |
 | **Light theme only** | One theme means every colour is chosen for contrast against white instead of compromised to work on two backgrounds. `success`, `warning` and `error` are deeper than the usual Tailwind shades, which fail contrast as text on white. |
 | **Inter, bundled** | Drawn for UI at small sizes: open counters and distinct `1/l/I` keep a dense task list readable. Bundled as TTF (SIL OFL) rather than fetched, so the app renders identically offline. |
 | **Phosphor icons, no emoji** | Emoji render differently on every platform and OS version, cannot inherit colour or weight, and read as decoration. Every glyph is an icon that takes the palette. |
 | **Stable icon keys** | Anything persisted stores a string key (`tasks.iconKey`, `profile.avatarIconKey`), never an `IconData` — the domain stays framework-free and the icon set can be swapped with no migration. |
 | **Flat surfaces** | No gradients, blur or glow. Colour carries meaning only: the category dot, the priority flag, the progress bar. |
+
+### Responsive layout
+
+Breakpoints follow Material 3's window size classes, on **width only** — height
+varies too much (keyboards, notches, split-screen) to drive layout.
+
+| Width | Class | Layout |
+| --- | --- | --- |
+| `< 600dp` | compact | Bottom `NavigationBar`, full-bleed content |
+| `600–839dp` | medium | Side `NavigationRail` (icons), content starts centring |
+| `>= 840dp` | expanded | Extended rail with labels, 3–4 column stat grids |
+
+Two helpers carry most of it, both in `core/utils/responsive.dart` and
+`presentation/widgets/page_body.dart`:
+
+- `context.responsive(compact:, medium:, expanded:)` picks a value for the
+  current class and falls back down the scale.
+- `PageBody` / `SliverPageBody` centre content and cap it at 640dp for prose
+  and forms, 760dp for lists. Without this, a task row stretches to 1200dp on
+  a tablet, which is the single thing that makes a phone layout look broken on
+  a big screen.
+
+Rotation is unlocked. Screens that used fixed `Spacer` layouts (Welcome) now
+scroll rather than overflow when the window is short, and the focus ring scales
+to the viewport instead of a fixed 264dp.
 
 ---
 

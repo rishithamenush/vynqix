@@ -7,6 +7,7 @@ import '../../../core/extensions/context_x.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_x.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../domain/services/nudge_service.dart';
 import '../../providers/app_providers.dart';
 import '../../providers/review_providers.dart';
@@ -14,6 +15,7 @@ import '../../providers/stats_providers.dart';
 import '../../providers/task_providers.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/common.dart';
+import '../../widgets/page_body.dart';
 
 /// Live nudges derived from the current plan.
 final nudgesProvider = FutureProvider<List<Nudge>>((ref) async {
@@ -77,11 +79,13 @@ class NotificationsScreen extends ConsumerWidget {
             );
           }
 
-          return ListView.separated(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.screen,
+          return PageBody(
+            applyGutter: false,
+            child: ListView.separated(
+            padding: EdgeInsets.fromLTRB(
+              context.gutter,
               AppSpacing.md,
-              AppSpacing.screen,
+              context.gutter,
               AppSpacing.huge,
             ),
             itemCount: nudges.length,
@@ -89,6 +93,7 @@ class NotificationsScreen extends ConsumerWidget {
             itemBuilder: (context, i) => _NudgeCard(
               nudge: nudges[i],
               use24h: settings.use24HourClock,
+            ),
             ),
           );
         },

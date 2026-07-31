@@ -7,7 +7,9 @@ import '../../../core/extensions/context_x.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/responsive.dart';
 import '../../providers/app_providers.dart';
+import '../../widgets/page_body.dart';
 
 /// Step 1 of onboarding: who the user is and what they are working towards.
 class ProfileSetupScreen extends ConsumerStatefulWidget {
@@ -60,122 +62,128 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('About you')),
       body: SafeArea(
-        child: ListView(
-          keyboardDismissBehavior:
-              ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-          children: [
-            const _StepIndicator(step: 1),
-            const SizedBox(height: AppSpacing.xl),
-            Text(
-              'Let’s make this yours',
-              style: AppTypography.titleLarge.copyWith(
-                color: colors.foreground,
+        child: PageBody(
+          maxWidth: Breakpoints.readableContent,
+          applyGutter: false,
+          child: ListView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: EdgeInsets.symmetric(horizontal: context.gutter),
+            children: [
+              const _StepIndicator(step: 1),
+              const SizedBox(height: AppSpacing.xl),
+              Text(
+                'Let’s make this yours',
+                style: AppTypography.titleLarge.copyWith(
+                  color: colors.foreground,
+                ),
               ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              'Used to personalise your dashboard and suggestions. '
-              'Nothing leaves your device.',
-              style: AppTypography.bodySmall.copyWith(color: colors.muted),
-            ),
-            const SizedBox(height: AppSpacing.xxl),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                'Used to personalise your dashboard and suggestions. '
+                'Nothing leaves your device.',
+                style: AppTypography.bodySmall.copyWith(color: colors.muted),
+              ),
+              const SizedBox(height: AppSpacing.xxl),
 
-            _Label('Pick an avatar'),
-            const SizedBox(height: AppSpacing.md),
-            Wrap(
-              spacing: AppSpacing.md,
-              runSpacing: AppSpacing.md,
-              children: AppIcons.avatarIcons.map((option) {
-                final selected = option.key == _avatar;
-                return Semantics(
-                  label: option.label,
-                  selected: selected,
-                  button: true,
-                  child: GestureDetector(
-                    onTap: () => setState(() => _avatar = option.key),
-                    child: AnimatedContainer(
-                      duration: AppDurations.fast,
-                      width: 52,
-                      height: 52,
-                      decoration: BoxDecoration(
-                        color: selected
-                            ? colors.primarySoft
-                            : colors.surfaceAlt,
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                        border: Border.all(
-                          color: selected ? colors.primary : colors.border,
-                          width: selected ? 1.5 : 1,
+              _Label('Pick an avatar'),
+              const SizedBox(height: AppSpacing.md),
+              Wrap(
+                spacing: AppSpacing.md,
+                runSpacing: AppSpacing.md,
+                children: AppIcons.avatarIcons.map((option) {
+                  final selected = option.key == _avatar;
+                  return Semantics(
+                    label: option.label,
+                    selected: selected,
+                    button: true,
+                    child: GestureDetector(
+                      onTap: () => setState(() => _avatar = option.key),
+                      child: AnimatedContainer(
+                        duration: AppDurations.fast,
+                        width: 52,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: selected
+                              ? colors.primarySoft
+                              : colors.surfaceAlt,
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                          border: Border.all(
+                            color: selected ? colors.primary : colors.border,
+                            width: selected ? 1.5 : 1,
+                          ),
+                        ),
+                        child: Icon(
+                          option.icon,
+                          size: 24,
+                          color: selected ? colors.primary : colors.muted,
                         ),
                       ),
-                      child: Icon(
-                        option.icon,
-                        size: 24,
-                        color: selected ? colors.primary : colors.muted,
-                      ),
                     ),
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: AppSpacing.xxl),
-
-            _Label('Your name'),
-            const SizedBox(height: AppSpacing.sm),
-            TextField(
-              controller: _name,
-              textCapitalization: TextCapitalization.words,
-              textInputAction: TextInputAction.next,
-              decoration: const InputDecoration(hintText: 'e.g. Rishitha'),
-              onChanged: (_) => setState(() {}),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-
-            _Label('What describes you best?'),
-            const SizedBox(height: AppSpacing.md),
-            Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm,
-              children: _occupations.map((o) {
-                final selected = o == _occupation;
-                return ChoiceChip(
-                  label: Text(o),
-                  selected: selected,
-                  showCheckmark: false,
-                  onSelected: (_) => setState(() => _occupation = o),
-                  selectedColor: colors.primary.withValues(alpha: 0.14),
-                  labelStyle: AppTypography.bodySmall.copyWith(
-                    color: selected ? colors.primary : colors.muted,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                  ),
-                  side: BorderSide(
-                    color: selected ? colors.primary : colors.border,
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-
-            _Label('What are you working towards?'),
-            const SizedBox(height: AppSpacing.sm),
-            TextField(
-              controller: _goal,
-              maxLines: 3,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                hintText: 'e.g. Ship my app and finish my degree',
+                  );
+                }).toList(),
               ),
-            ),
-            const SizedBox(height: AppSpacing.huge),
-          ],
+              const SizedBox(height: AppSpacing.xxl),
+
+              _Label('Your name'),
+              const SizedBox(height: AppSpacing.sm),
+              TextField(
+                controller: _name,
+                textCapitalization: TextCapitalization.words,
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(hintText: 'e.g. Rishitha'),
+                onChanged: (_) => setState(() {}),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+
+              _Label('What describes you best?'),
+              const SizedBox(height: AppSpacing.md),
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
+                children: _occupations.map((o) {
+                  final selected = o == _occupation;
+                  return ChoiceChip(
+                    label: Text(o),
+                    selected: selected,
+                    showCheckmark: false,
+                    onSelected: (_) => setState(() => _occupation = o),
+                    selectedColor: colors.primary.withValues(alpha: 0.14),
+                    labelStyle: AppTypography.bodySmall.copyWith(
+                      color: selected ? colors.primary : colors.muted,
+                      fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                    ),
+                    side: BorderSide(
+                      color: selected ? colors.primary : colors.border,
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+
+              _Label('What are you working towards?'),
+              const SizedBox(height: AppSpacing.sm),
+              TextField(
+                controller: _goal,
+                maxLines: 3,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: const InputDecoration(
+                  hintText: 'e.g. Ship my app and finish my degree',
+                ),
+              ),
+              const SizedBox(height: AppSpacing.huge),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.screen),
-          child: FilledButton(
-            onPressed: _name.text.trim().isEmpty ? null : _next,
-            child: const Text('Continue'),
+        child: PageBody(
+          maxWidth: Breakpoints.readableContent,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+            child: FilledButton(
+              onPressed: _name.text.trim().isEmpty ? null : _next,
+              child: const Text('Continue'),
+            ),
           ),
         ),
       ),

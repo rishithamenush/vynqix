@@ -8,9 +8,11 @@ import '../../../core/extensions/context_x.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_x.dart';
+import '../../../core/utils/responsive.dart';
 import '../../providers/app_providers.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/common.dart';
+import '../../widgets/page_body.dart';
 import '../../widgets/time_field.dart';
 
 /// Appearance, focus defaults, reminders, profile and data management.
@@ -26,11 +28,14 @@ class SettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.screen,
+      body: PageBody(
+        maxWidth: Breakpoints.readableContent,
+        applyGutter: false,
+        child: ListView(
+        padding: EdgeInsets.fromLTRB(
+          context.gutter,
           AppSpacing.md,
-          AppSpacing.screen,
+          context.gutter,
           AppSpacing.huge,
         ),
         children: [
@@ -213,6 +218,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
         ],
+        ),
       ),
     );
   }

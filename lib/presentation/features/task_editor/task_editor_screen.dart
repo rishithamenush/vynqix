@@ -10,6 +10,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/token_styles.dart';
 import '../../../core/utils/date_x.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../domain/entities/subtask.dart';
 import '../../../domain/entities/task.dart';
 import '../../../domain/enums/task_enums.dart';
@@ -17,6 +18,7 @@ import '../../providers/app_providers.dart';
 import '../../providers/task_providers.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/common.dart';
+import '../../widgets/page_body.dart';
 
 /// Create or edit a task. One screen serves both so the fields, validation
 /// and layout can never drift apart between the two flows.
@@ -327,13 +329,16 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
         ],
       ),
       body: SafeArea(
-        child: ListView(
+        child: PageBody(
+          maxWidth: Breakpoints.readableContent,
+          applyGutter: false,
+          child: ListView(
           keyboardDismissBehavior:
               ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screen,
+          padding: EdgeInsets.fromLTRB(
+            context.gutter,
             AppSpacing.sm,
-            AppSpacing.screen,
+            context.gutter,
             AppSpacing.huge,
           ),
           children: [
@@ -628,6 +633,7 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
                 label: const Text('Start focus session'),
               ),
           ],
+        ),
         ),
       ),
       ),

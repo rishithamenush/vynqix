@@ -8,12 +8,14 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_x.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../domain/entities/achievement.dart';
 import '../../../domain/entities/task.dart';
 import '../../providers/app_providers.dart';
 import '../../providers/stats_providers.dart';
 import '../../providers/task_providers.dart';
 import '../../widgets/common.dart';
+import '../../widgets/page_body.dart';
 import '../../widgets/task_card.dart';
 
 /// Today's list: a compact progress header, then the day's tasks split into
@@ -31,7 +33,7 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        titleSpacing: AppSpacing.screen,
+        titleSpacing: context.gutter,
         title: const Text('Today'),
         actions: [
           IconButton(
@@ -83,7 +85,11 @@ class HomeScreen extends ConsumerWidget {
 
             return CustomScrollView(
               slivers: [
-                SliverToBoxAdapter(child: _ProgressHeader(dayKey: todayKey)),
+                SliverPageBody(
+                  sliver: SliverToBoxAdapter(
+                    child: _ProgressHeader(dayKey: todayKey),
+                  ),
+                ),
 
                 if (tasks.isEmpty)
                   SliverFillRemaining(
@@ -101,10 +107,11 @@ class HomeScreen extends ConsumerWidget {
                   )
                 else ...[
                   if (open.isEmpty)
-                    SliverToBoxAdapter(
+                    SliverPageBody(
+                      sliver: SliverToBoxAdapter(
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.screen,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: context.gutter,
                           vertical: AppSpacing.xxl,
                         ),
                         child: Row(
@@ -126,17 +133,19 @@ class HomeScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
+                      ),
                     )
                   else
                     _TaskSliver(tasks: open),
 
                   if (showDone) ...[
-                    SliverToBoxAdapter(
+                    SliverPageBody(
+                      sliver: SliverToBoxAdapter(
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(
-                          AppSpacing.screen,
+                        padding: EdgeInsets.fromLTRB(
+                          context.gutter,
                           AppSpacing.xl,
-                          AppSpacing.screen,
+                          context.gutter,
                           AppSpacing.sm,
                         ),
                         child: Text(
@@ -146,6 +155,7 @@ class HomeScreen extends ConsumerWidget {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
+                      ),
                       ),
                     ),
                     _TaskSliver(tasks: done),
@@ -172,8 +182,11 @@ class _TaskSliver extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
 
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+    return SliverPageBody(
+      sliver: SliverPadding(
+      padding: EdgeInsets.symmetric(
+        horizontal: (context.gutter - AppSpacing.sm).clamp(0, 32),
+      ),
       sliver: SliverList.separated(
         itemCount: tasks.length,
         separatorBuilder: (_, _) => Divider(
@@ -183,6 +196,7 @@ class _TaskSliver extends ConsumerWidget {
           color: colors.border.withValues(alpha: 0.6),
         ),
         itemBuilder: (context, i) => _TaskRow(task: tasks[i]),
+      ),
       ),
     );
   }
@@ -325,10 +339,10 @@ class _ProgressHeader extends ConsumerWidget {
     final progress = stats?.completionRate ?? 0;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.screen,
+      padding: EdgeInsets.fromLTRB(
+        context.gutter,
         AppSpacing.xs,
-        AppSpacing.screen,
+        context.gutter,
         AppSpacing.lg,
       ),
       child: Column(

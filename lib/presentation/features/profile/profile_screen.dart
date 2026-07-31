@@ -8,10 +8,12 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_x.dart';
+import '../../../core/utils/responsive.dart';
 import '../../providers/app_providers.dart';
 import '../../providers/stats_providers.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/common.dart';
+import '../../widgets/page_body.dart';
 import '../../widgets/progress_ring.dart';
 
 /// Identity, level progress, lifetime stats and the entry point to every
@@ -30,7 +32,7 @@ class ProfileScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        titleSpacing: AppSpacing.screen,
+        titleSpacing: context.gutter,
         title: const Text('You'),
         actions: [
           IconButton(
@@ -40,11 +42,13 @@ class ProfileScreen extends ConsumerWidget {
           const SizedBox(width: AppSpacing.xs),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.screen,
+      body: PageBody(
+        applyGutter: false,
+        child: ListView(
+        padding: EdgeInsets.fromLTRB(
+          context.gutter,
           AppSpacing.sm,
-          AppSpacing.screen,
+          context.gutter,
           120,
         ),
         children: [
@@ -171,12 +175,12 @@ class ProfileScreen extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           GridView.count(
-            crossAxisCount: 2,
+            crossAxisCount: context.statColumns,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: AppSpacing.md,
             crossAxisSpacing: AppSpacing.md,
-            childAspectRatio: 1.55,
+            childAspectRatio: context.isSmallPhone ? 1.4 : 1.55,
             children: [
               StatTile(
                 value: '${stats?.totalCompleted ?? 0}',
@@ -247,6 +251,7 @@ class ProfileScreen extends ConsumerWidget {
             ],
           ),
         ],
+        ),
       ),
     );
   }

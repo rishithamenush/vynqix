@@ -5,8 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../../../core/extensions/context_x.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/responsive.dart';
 import '../../providers/app_providers.dart';
 import '../../widgets/app_card.dart';
+import '../../widgets/page_body.dart';
 
 /// Free vs Premium comparison.
 ///
@@ -41,11 +43,14 @@ class PremiumScreen extends ConsumerWidget {
         ),
         title: const Text('Premium'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.screen,
+      body: PageBody(
+        maxWidth: Breakpoints.readableContent,
+        applyGutter: false,
+        child: ListView(
+        padding: EdgeInsets.fromLTRB(
+          context.gutter,
           AppSpacing.sm,
-          AppSpacing.screen,
+          context.gutter,
           AppSpacing.huge,
         ),
         children: [
@@ -206,6 +211,7 @@ class PremiumScreen extends ConsumerWidget {
             ),
           ),
         ],
+        ),
       ),
     );
   }

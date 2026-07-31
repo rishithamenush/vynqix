@@ -4,6 +4,7 @@ import '../../core/extensions/context_x.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/utils/date_x.dart';
+import '../../core/utils/responsive.dart';
 
 /// Horizontal week-at-a-glance date picker used above the planner.
 class DayStrip extends StatefulWidget {
@@ -65,7 +66,7 @@ class _DayStripState extends State<DayStrip> {
       child: ListView.separated(
         controller: _controller,
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+        padding: EdgeInsets.symmetric(horizontal: context.gutter),
         itemCount: days.length,
         separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
         itemBuilder: (context, i) => _DayChip(

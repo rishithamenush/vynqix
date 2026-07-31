@@ -6,15 +6,18 @@ import '../../domain/enums/task_enums.dart';
 ///
 /// Kept out of the domain layer so entities and enums remain framework-free.
 extension TaskCategoryStyle on TaskCategory {
+  /// Eight well-separated hues, all around the 600 weight so they stay
+  /// legible as small text and 6dp dots on white. None sits near the primary
+  /// blue, so a category dot is never mistaken for a UI accent.
   Color get color => switch (this) {
-    TaskCategory.work => const Color(0xFF4F46E5),
-    TaskCategory.study => const Color(0xFF8B5CF6),
-    TaskCategory.health => const Color(0xFF22C55E),
-    TaskCategory.personal => const Color(0xFFF59E0B),
-    TaskCategory.social => const Color(0xFFEC4899),
-    TaskCategory.finance => const Color(0xFF06B6D4),
-    TaskCategory.creative => const Color(0xFFEF4444),
-    TaskCategory.other => const Color(0xFF6B7280),
+    TaskCategory.work => const Color(0xFF7C3AED),
+    TaskCategory.study => const Color(0xFF0891B2),
+    TaskCategory.health => const Color(0xFF059669),
+    TaskCategory.personal => const Color(0xFFEA580C),
+    TaskCategory.social => const Color(0xFFDB2777),
+    TaskCategory.finance => const Color(0xFFCA8A04),
+    TaskCategory.creative => const Color(0xFFC026D3),
+    TaskCategory.other => const Color(0xFF64748B),
   };
 
   IconData get icon => switch (this) {
@@ -31,9 +34,9 @@ extension TaskCategoryStyle on TaskCategory {
 
 extension TaskPriorityStyle on TaskPriority {
   Color get color => switch (this) {
-    TaskPriority.high => const Color(0xFFEF4444),
-    TaskPriority.medium => const Color(0xFFF59E0B),
-    TaskPriority.low => const Color(0xFF22C55E),
+    TaskPriority.high => const Color(0xFFDC2626),
+    TaskPriority.medium => const Color(0xFFC2410C),
+    TaskPriority.low => const Color(0xFF15803D),
   };
 
   IconData get icon => switch (this) {
@@ -45,11 +48,11 @@ extension TaskPriorityStyle on TaskPriority {
 
 extension TaskStatusStyle on TaskStatus {
   Color color(ColorScheme _) => switch (this) {
-    TaskStatus.completed => const Color(0xFF22C55E),
-    TaskStatus.inProgress => const Color(0xFF4F46E5),
-    TaskStatus.missed => const Color(0xFFEF4444),
-    TaskStatus.skipped => const Color(0xFF6B7280),
-    TaskStatus.pending => const Color(0xFF9CA3AF),
+    TaskStatus.completed => const Color(0xFF15803D),
+    TaskStatus.inProgress => const Color(0xFF2563EB),
+    TaskStatus.missed => const Color(0xFFDC2626),
+    TaskStatus.skipped => const Color(0xFF64748B),
+    TaskStatus.pending => const Color(0xFF9CA5B4),
   };
 
   IconData get icon => switch (this) {
@@ -63,10 +66,10 @@ extension TaskStatusStyle on TaskStatus {
 
 extension MoodStyle on Mood {
   Color get color => switch (this) {
-    Mood.great => const Color(0xFF22C55E),
-    Mood.good => const Color(0xFF4F46E5),
-    Mood.okay => const Color(0xFFF59E0B),
-    Mood.bad => const Color(0xFFEF4444),
+    Mood.great => const Color(0xFF15803D),
+    Mood.good => const Color(0xFF2563EB),
+    Mood.okay => const Color(0xFFC2410C),
+    Mood.bad => const Color(0xFFDC2626),
     Mood.terrible => const Color(0xFF7F1D1D),
   };
 }

@@ -6,11 +6,13 @@ import '../../../core/extensions/context_x.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../domain/entities/achievement.dart';
 import '../../providers/app_providers.dart';
 import '../../providers/stats_providers.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/common.dart';
+import '../../widgets/page_body.dart';
 import '../../widgets/progress_ring.dart';
 
 /// Badges, level and XP progress.
@@ -39,11 +41,13 @@ class AchievementsScreen extends ConsumerWidget {
         data: (achievements) {
           final unlocked = achievements.where((a) => a.isUnlocked).length;
 
-          return ListView(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.screen,
+          return PageBody(
+            applyGutter: false,
+            child: ListView(
+            padding: EdgeInsets.fromLTRB(
+              context.gutter,
               AppSpacing.md,
-              AppSpacing.screen,
+              context.gutter,
               AppSpacing.huge,
             ),
             children: [
@@ -98,6 +102,7 @@ class AchievementsScreen extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.md),
               ],
             ],
+            ),
           );
         },
       ),

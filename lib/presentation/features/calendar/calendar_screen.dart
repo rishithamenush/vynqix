@@ -7,9 +7,11 @@ import '../../../core/extensions/context_x.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_x.dart';
+import '../../../core/utils/responsive.dart';
 import '../../providers/app_providers.dart';
 import '../../providers/task_providers.dart';
 import '../../widgets/common.dart';
+import '../../widgets/page_body.dart';
 import '../../widgets/task_card.dart';
 
 /// Month grid with an agenda for the selected day.
@@ -61,13 +63,21 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
       ),
       body: Column(
         children: [
-          _MonthHeader(month: month),
-          _WeekdayLabels(),
-          _MonthGrid(
-            month: month,
-            selected: selected,
-            marked: marked,
-            onSelect: (d) => ref.read(selectedDayProvider.notifier).state = d,
+          PageBody(
+            applyGutter: false,
+            child: Column(
+              children: [
+                _MonthHeader(month: month),
+                _WeekdayLabels(),
+                _MonthGrid(
+                  month: month,
+                  selected: selected,
+                  marked: marked,
+                  onSelect: (d) =>
+                      ref.read(selectedDayProvider.notifier).state = d,
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
           Divider(color: colors.border, height: 1),
@@ -92,10 +102,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                   );
                 }
                 return ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.screen,
+                  padding: EdgeInsets.fromLTRB(
+                    context.gutter,
                     AppSpacing.lg,
-                    AppSpacing.screen,
+                    context.gutter,
                     120,
                   ),
                   itemCount: tasks.length + 1,
@@ -143,8 +153,8 @@ class _MonthHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.screen,
+      padding: EdgeInsets.symmetric(
+        horizontal: context.gutter,
         vertical: AppSpacing.sm,
       ),
       child: Row(
@@ -188,7 +198,7 @@ class _WeekdayLabels extends StatelessWidget {
     final colors = context.colors;
     const labels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+      padding: EdgeInsets.symmetric(horizontal: context.gutter),
       child: Row(
         children: labels
             .map(
@@ -229,17 +239,19 @@ class _MonthGrid extends StatelessWidget {
     final days = DateX.monthGrid(month);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.screen,
+      padding: EdgeInsets.symmetric(
+        horizontal: context.gutter,
         vertical: AppSpacing.sm,
       ),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: days.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 7,
-          childAspectRatio: 1,
+          // A square cell is too tall when the window is short, so the grid
+          // flattens rather than pushing the agenda off screen.
+          childAspectRatio: context.isShort ? 1.5 : 1,
         ),
         itemBuilder: (context, i) {
           final day = days[i];

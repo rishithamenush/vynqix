@@ -5,6 +5,9 @@
 A local-first daily task scheduler built with Flutter. Everything lives on the
 device — no account, no backend, no network calls.
 
+Clean Material 3, light theme only, Inter for type and Phosphor for icons —
+both bundled, so nothing is fetched at runtime.
+
 Ported from the `daily-task-scheduler` Expo prototype: the colour system,
 typography scale, screen list and product concepts come from that project's
 `design.md`; the data model, architecture and implementation are new.
@@ -98,6 +101,16 @@ Riverpod 2 without code generation. Query providers are `FutureProvider`s;
 mutations go through controllers (`TaskController`, `ReviewController`,
 `FocusController`) that own the side effects.
 
+### Design system
+
+| Decision | Rationale |
+| --- | --- |
+| **Light theme only** | One theme means every colour is chosen for contrast against white instead of compromised to work on two backgrounds. `success`, `warning` and `error` are deeper than the usual Tailwind shades, which fail contrast as text on white. |
+| **Inter, bundled** | Drawn for UI at small sizes: open counters and distinct `1/l/I` keep a dense task list readable. Bundled as TTF (SIL OFL) rather than fetched, so the app renders identically offline. |
+| **Phosphor icons, no emoji** | Emoji render differently on every platform and OS version, cannot inherit colour or weight, and read as decoration. Every glyph is an icon that takes the palette. |
+| **Stable icon keys** | Anything persisted stores a string key (`tasks.iconKey`, `profile.avatarIconKey`), never an `IconData` — the domain stays framework-free and the icon set can be swapped with no migration. |
+| **Flat surfaces** | No gradients, blur or glow. Colour carries meaning only: the category dot, the priority flag, the progress bar. |
+
 ---
 
 ## Features
@@ -105,14 +118,15 @@ mutations go through controllers (`TaskController`, `ReviewController`,
 **Onboarding** — profile, avatar, goal, and the wake/sleep/work rhythm the
 planner schedules around.
 
-**Home** — today's completion ring, streak and level, "right now" and "up next",
-swipe to complete or delete, long-press for quick actions.
+**Home** — "Today" list with a date/progress header and streak, tasks split
+into outstanding and completed, swipe to complete or delete, long-press for
+quick actions.
 
 **Planner** — any day on a horizontal strip, timeline with overlap warnings,
 drag-to-reorder backlog, a capacity meter against your waking hours,
 auto-schedule into free slots, and copy-today-into-tomorrow.
 
-**Task editor** — emoji, category, priority, date, start time, duration,
+**Task editor** — icon, category, priority, date, start time, duration,
 repeat rule, reminder lead time, checklist, tags and notes.
 
 **Focus** — Pomodoro timer bound to a task, auto-starting breaks, a long break
@@ -136,10 +150,32 @@ tomorrow, unwritten review, streak at risk).
 
 **Profile & achievements** — XP, levels, lifetime stats, 15-badge catalogue.
 
-**Settings** — theme, 24-hour clock, focus defaults, reminder times, rollover
-behaviour, daily goal, and a full data reset.
+**Settings** — 24-hour clock, completed-task visibility, focus defaults,
+reminder times, rollover behaviour, waking hours, daily goal, and a full data
+reset.
 
 ---
+
+## Usability behaviour worth knowing
+
+These are deliberate, and the reasoning is in the code where each lives:
+
+- **Tapping anywhere off a field closes the keyboard** (`DismissKeyboardOnTap`
+  in `app/app.dart`), and dragging a form scrolls it away. It sits above the
+  `Navigator`, so it applies to every screen at once.
+- **Closing the task editor with unsaved edits asks first**, including via the
+  system back gesture.
+- **Swipe-to-delete deletes immediately and offers Undo** rather than
+  interrupting with a dialog — swiping is easy to do by accident, and an undo
+  is cheaper than a confirm on every delete.
+- **Deleting a repeating task asks** whether it means this occurrence or all
+  future ones. Guessing either way loses data.
+- **Search is debounced** by 300 ms so a query runs when you pause, not on
+  every keystroke.
+- **Touch targets are 44dp**, including the task checkbox, whose visible
+  circle is only 22dp.
+- **The Calendar opens on today** even though the Planner defaults the shared
+  day selection to tomorrow.
 
 ## Known limitations
 
@@ -152,3 +188,6 @@ behaviour, daily goal, and a full data reset.
 - **Web is not wired up.** `sqflite` covers iOS, Android, macOS, Windows and
   Linux. Web would need a second `TaskRepository` implementation — the
   repository interfaces are already the seam for it.
+- **No dark theme.** Removed on purpose (see the design table). Re-adding it
+  means restoring a second `AppColors` set and re-checking every deepened
+  semantic colour.

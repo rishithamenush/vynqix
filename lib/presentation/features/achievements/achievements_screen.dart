@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/extensions/context_x.dart';
+import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../domain/entities/achievement.dart';
@@ -130,14 +131,10 @@ class _AchievementTile extends StatelessWidget {
                   : colors.surfaceAlt,
               borderRadius: BorderRadius.circular(AppRadius.md),
             ),
-            child: Center(
-              child: Opacity(
-                opacity: unlocked ? 1 : 0.32,
-                child: Text(
-                  def.emoji,
-                  style: const TextStyle(fontSize: 25),
-                ),
-              ),
+            child: Icon(
+              AppIcons.badge(def.iconKey),
+              size: 24,
+              color: unlocked ? colors.warning : colors.faint,
             ),
           ),
           const SizedBox(width: AppSpacing.lg),

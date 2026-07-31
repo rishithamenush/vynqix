@@ -141,14 +141,15 @@ class Insight {
     required this.id,
     required this.title,
     required this.body,
-    required this.emoji,
+    required this.iconKey,
     this.tone = InsightTone.neutral,
   });
 
   final String id;
   final String title;
   final String body;
-  final String emoji;
+  /// Key into `AppIcons.insight`.
+  final String iconKey;
   final InsightTone tone;
 }
 

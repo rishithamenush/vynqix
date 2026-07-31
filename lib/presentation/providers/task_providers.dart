@@ -149,14 +149,28 @@ class TaskController {
     }
   }
 
-  Future<void> delete(Task task, {bool wholeSeries = false}) async {
+  /// Deletes a task (or the rest of its series) and returns the rows that
+  /// were removed, so the caller can offer an undo.
+  Future<List<Task>> delete(Task task, {bool wholeSeries = false}) async {
     final seriesId = task.seriesId;
     if (wholeSeries && seriesId != null) {
+      final all = await _repo.getAll();
+      final removed = all
+          .where(
+            (t) =>
+                t.seriesId == seriesId &&
+                t.dayKey.compareTo(task.dayKey) >= 0,
+          )
+          .toList();
       await _repo.deleteSeriesFrom(seriesId, task.dayKey);
-    } else {
-      await _repo.delete(task.id);
+      return removed;
     }
+    await _repo.delete(task.id);
+    return [task];
   }
+
+  /// Puts back tasks removed by [delete].
+  Future<void> restore(List<Task> tasks) => _repo.saveAll(tasks);
 
   /// Toggles between completed and pending, awarding XP on completion.
   ///
@@ -272,7 +286,7 @@ class TaskController {
         title: task.title,
         description: task.description,
         notes: task.notes,
-        emoji: task.emoji,
+        iconKey: task.iconKey,
         dayKey: dayKey,
         category: task.category,
         priority: task.priority,

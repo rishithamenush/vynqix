@@ -71,7 +71,7 @@ class AppDatabase {
         title TEXT NOT NULL,
         description TEXT NOT NULL DEFAULT '',
         notes TEXT NOT NULL DEFAULT '',
-        emoji TEXT,
+        iconKey TEXT,
         dayKey TEXT NOT NULL,
         category TEXT NOT NULL,
         priority TEXT NOT NULL,
@@ -149,7 +149,12 @@ class AppDatabase {
   /// Migrations are additive and versioned. Bump
   /// `AppConstants.databaseVersion` and add a case here.
   static Future<void> _migrate(Database db, int from, int to) async {
-    // No migrations yet — v1 is the initial schema.
+    // v2: tasks stored a literal emoji character; they now store a key into
+    // the app's icon set. The old column is left in place (SQLite cannot
+    // drop columns portably) but is no longer read or written.
+    if (from < 2) {
+      await db.execute('ALTER TABLE $tableTasks ADD COLUMN iconKey TEXT');
+    }
   }
 
   Future<void> close() => db.close();

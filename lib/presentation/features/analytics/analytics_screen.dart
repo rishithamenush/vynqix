@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
 import '../../../core/extensions/context_x.dart';
+import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/token_styles.dart';
@@ -487,9 +488,10 @@ class _MoodChart extends StatelessWidget {
                   (m) => m.score == value.toInt(),
                   orElse: () => Mood.okay,
                 );
-                return Text(
-                  mood.emoji,
-                  style: const TextStyle(fontSize: 13),
+                return Icon(
+                  AppIcons.mood(mood),
+                  size: 15,
+                  color: mood.color,
                 );
               },
             ),

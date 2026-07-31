@@ -31,7 +31,7 @@ abstract final class RecurrenceService {
           title: template.title,
           description: template.description,
           notes: template.notes,
-          emoji: template.emoji,
+          iconKey: template.iconKey,
           dayKey: cursor.dayKey,
           category: template.category,
           priority: template.priority,

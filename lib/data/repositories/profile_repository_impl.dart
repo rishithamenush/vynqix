@@ -71,7 +71,7 @@ class ProfileRepositoryImpl
     'name': p.name,
     'occupation': p.occupation,
     'goal': p.goal,
-    'avatarEmoji': p.avatarEmoji,
+    'avatarIconKey': p.avatarIconKey,
     'wakeMinutes': p.wakeMinutes,
     'sleepMinutes': p.sleepMinutes,
     'workStartMinutes': p.workStartMinutes,
@@ -89,7 +89,8 @@ class ProfileRepositoryImpl
       name: j['name'] as String? ?? '',
       occupation: j['occupation'] as String? ?? '',
       goal: j['goal'] as String? ?? '',
-      avatarEmoji: j['avatarEmoji'] as String? ?? fallback.avatarEmoji,
+      avatarIconKey:
+          j['avatarIconKey'] as String? ?? fallback.avatarIconKey,
       wakeMinutes: j['wakeMinutes'] as int? ?? fallback.wakeMinutes,
       sleepMinutes: j['sleepMinutes'] as int? ?? fallback.sleepMinutes,
       workStartMinutes:

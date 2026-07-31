@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:vynqix/data/local/app_database.dart';
 import 'package:vynqix/data/repositories/task_repository_impl.dart';
 import 'package:vynqix/domain/entities/subtask.dart';
@@ -14,6 +18,7 @@ void main() {
 
   setUp(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
+    sqfliteFfiInit();
     db = await AppDatabase.open(inMemory: true);
     repo = TaskRepositoryImpl(db);
   });
@@ -29,7 +34,7 @@ void main() {
       title: 'Write the report',
       description: 'Q3 summary',
       notes: 'Include the churn chart',
-      emoji: '📝',
+      iconKey: 'write',
       dayKey: '2026-07-31',
       category: TaskCategory.work,
       priority: TaskPriority.high,
@@ -57,7 +62,7 @@ void main() {
     expect(loaded!.title, original.title);
     expect(loaded.description, original.description);
     expect(loaded.notes, original.notes);
-    expect(loaded.emoji, '📝');
+    expect(loaded.iconKey, 'write');
     expect(loaded.category, TaskCategory.work);
     expect(loaded.priority, TaskPriority.high);
     expect(loaded.status, TaskStatus.inProgress);
@@ -160,6 +165,74 @@ void main() {
     ]);
 
     expect(await repo.daysWithTasks(), {'2026-07-30', '2026-07-31'});
+  });
+
+  test('the v1 -> v2 migration adds iconKey and keeps existing tasks', () async {
+    // Build a v1 database by hand, then reopen it at the current version, so
+    // the upgrade path is covered and not just the fresh-install path.
+    final factory = databaseFactoryFfi;
+    // A real file, because `:memory:` does not survive the close/reopen that
+    // this test is entirely about.
+    final dir = await Directory.systemTemp.createTemp('vynqix_migration');
+    addTearDown(() => dir.delete(recursive: true));
+    final path = p.join(dir.path, 'migration_test.db');
+
+    final legacy = await factory.openDatabase(
+      path,
+      options: OpenDatabaseOptions(
+        version: 1,
+        onCreate: (db, _) async {
+          await db.execute('''
+            CREATE TABLE tasks (
+              id TEXT PRIMARY KEY,
+              title TEXT NOT NULL,
+              emoji TEXT,
+              dayKey TEXT NOT NULL,
+              category TEXT NOT NULL,
+              priority TEXT NOT NULL,
+              status TEXT NOT NULL,
+              createdAt INTEGER NOT NULL,
+              updatedAt INTEGER NOT NULL
+            )
+          ''');
+          await db.insert('tasks', {
+            'id': 'legacy-1',
+            'title': 'Task from v1',
+            'emoji': 'X',
+            'dayKey': '2026-07-31',
+            'category': 'work',
+            'priority': 'medium',
+            'status': 'pending',
+            'createdAt': 0,
+            'updatedAt': 0,
+          });
+        },
+      ),
+    );
+    await legacy.close();
+
+    final upgraded = await factory.openDatabase(
+      path,
+      options: OpenDatabaseOptions(
+        version: 2,
+        onUpgrade: (db, from, to) async {
+          if (from < 2) {
+            await db.execute('ALTER TABLE tasks ADD COLUMN iconKey TEXT');
+          }
+        },
+      ),
+    );
+
+    final rows = await upgraded.query('tasks');
+    expect(rows, hasLength(1), reason: 'the existing task must survive');
+    expect(rows.first['title'], 'Task from v1');
+    expect(
+      rows.first.containsKey('iconKey'),
+      isTrue,
+      reason: 'v2 must add the iconKey column',
+    );
+    expect(rows.first['iconKey'], isNull);
+    await upgraded.close();
   });
 
   test('writes emit on the changes stream', () async {

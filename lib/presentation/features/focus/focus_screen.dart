@@ -11,6 +11,8 @@ import '../../../core/utils/responsive.dart';
 import '../../../domain/enums/task_enums.dart';
 import '../../providers/focus_providers.dart';
 import '../../providers/task_providers.dart';
+import '../../widgets/app_dialog.dart';
+import '../../widgets/app_sheet.dart';
 import '../../widgets/progress_ring.dart';
 
 /// Minimal fullscreen Pomodoro timer.
@@ -149,8 +151,8 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
                 final done =
                     i <
                     (state.completedFocusBlocks %
-                            AppConstants.pomodorosPerLongBreak ==
-                        0
+                                AppConstants.pomodorosPerLongBreak ==
+                            0
                         ? (state.completedFocusBlocks == 0
                               ? 0
                               : AppConstants.pomodorosPerLongBreak)
@@ -182,9 +184,7 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
                       .toggleComplete(task);
                   if (!context.mounted) return;
                   if (unlocked.isNotEmpty) {
-                    context.showSnack(
-                      '${unlocked.first.title} unlocked',
-                    );
+                    context.showMessage('${unlocked.first.title} unlocked');
                   }
                   context.pop();
                 },
@@ -200,24 +200,17 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
   }
 
   Future<void> _pickDuration(FocusController controller) async {
-    final picked = await showModalBottomSheet<int>(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: AppSpacing.md),
-            Text('Focus length', style: AppTypography.subtitle),
-            const SizedBox(height: AppSpacing.md),
-            ...AppConstants.focusDurations.map(
-              (m) => ListTile(
-                title: Text('$m minutes'),
-                onTap: () => Navigator.pop(context, m),
-              ),
-            ),
-          ],
-        ),
-      ),
+    final picked = await showOptionsSheet<int>(
+      context,
+      title: 'Focus length',
+      options: [
+        for (final m in AppConstants.focusDurations)
+          SheetOption(
+            value: m,
+            label: '$m minutes',
+            icon: Icons.timer_outlined,
+          ),
+      ],
     );
     if (picked != null) {
       controller.configure(minutes: picked, taskId: widget.taskId);

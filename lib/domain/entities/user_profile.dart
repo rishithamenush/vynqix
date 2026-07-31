@@ -24,6 +24,7 @@ class UserProfile {
   final String name;
   final String occupation;
   final String goal;
+
   /// Key into `AppIcons.avatarIcons`.
   final String avatarIconKey;
 

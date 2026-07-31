@@ -80,7 +80,8 @@ class RangeStats {
 
   int get activeDays => days.where((d) => d.total > 0).length;
 
-  double get completionRate => totalTasks == 0 ? 0 : totalCompleted / totalTasks;
+  double get completionRate =>
+      totalTasks == 0 ? 0 : totalCompleted / totalTasks;
 
   double get avgTasksPerActiveDay =>
       activeDays == 0 ? 0 : totalCompleted / activeDays;
@@ -148,6 +149,7 @@ class Insight {
   final String id;
   final String title;
   final String body;
+
   /// Key into `AppIcons.insight`.
   final String iconKey;
   final InsightTone tone;

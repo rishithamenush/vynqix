@@ -93,9 +93,7 @@ final nextTaskProvider = Provider<Task?>((ref) {
   return ScheduleService.nextTask(tasks, now);
 });
 
-final taskControllerProvider = Provider<TaskController>(
-  TaskController.new,
-);
+final taskControllerProvider = Provider<TaskController>(TaskController.new);
 
 /// Everything that mutates tasks.
 ///
@@ -141,9 +139,7 @@ class TaskController {
     if (applyToSeries && seriesId != null && updated.repeat.repeats) {
       await _repo.deleteSeriesFrom(
         seriesId,
-        DateX.parseKey(updated.dayKey)
-            .add(const Duration(days: 1))
-            .dayKey,
+        DateX.parseKey(updated.dayKey).add(const Duration(days: 1)).dayKey,
       );
       await _repo.saveAll(RecurrenceService.expand(updated));
     }
@@ -158,8 +154,7 @@ class TaskController {
       final removed = all
           .where(
             (t) =>
-                t.seriesId == seriesId &&
-                t.dayKey.compareTo(task.dayKey) >= 0,
+                t.seriesId == seriesId && t.dayKey.compareTo(task.dayKey) >= 0,
           )
           .toList();
       await _repo.deleteSeriesFrom(seriesId, task.dayKey);

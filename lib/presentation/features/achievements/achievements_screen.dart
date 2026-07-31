@@ -26,9 +26,7 @@ class AchievementsScreen extends ConsumerWidget {
     final profile = ref.watch(profileValueProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Achievements'),
-      ),
+      appBar: AppBar(title: const Text('Achievements')),
       body: async.when(
         loading: () => const Padding(
           padding: EdgeInsets.all(AppSpacing.screen),
@@ -44,64 +42,64 @@ class AchievementsScreen extends ConsumerWidget {
           return PageBody(
             applyGutter: false,
             child: ListView(
-            padding: EdgeInsets.fromLTRB(
-              context.gutter,
-              AppSpacing.md,
-              context.gutter,
-              AppSpacing.huge,
-            ),
-            children: [
-              AppCard(
-                padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Row(
-                  children: [
-                    ProgressRing(
-                      progress: achievements.isEmpty
-                          ? 0
-                          : unlocked / achievements.length,
-                      size: 84,
-                      strokeWidth: 8,
-                      center: FittedBox(
-                        child: Text(
-                          '$unlocked',
-                          style: AppTypography.titleLarge.copyWith(
-                            color: colors.foreground,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.xl),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '$unlocked of ${achievements.length} unlocked',
-                            style: AppTypography.subtitle.copyWith(
+              padding: EdgeInsets.fromLTRB(
+                context.gutter,
+                AppSpacing.md,
+                context.gutter,
+                AppSpacing.huge,
+              ),
+              children: [
+                AppCard(
+                  padding: const EdgeInsets.all(AppSpacing.xl),
+                  child: Row(
+                    children: [
+                      ProgressRing(
+                        progress: achievements.isEmpty
+                            ? 0
+                            : unlocked / achievements.length,
+                        size: 84,
+                        strokeWidth: 8,
+                        center: FittedBox(
+                          child: Text(
+                            '$unlocked',
+                            style: AppTypography.titleLarge.copyWith(
                               color: colors.foreground,
                             ),
                           ),
-                          const SizedBox(height: AppSpacing.xs),
-                          Text(
-                            'Level ${profile.level} · ${profile.xp} XP total',
-                            style: AppTypography.bodySmall.copyWith(
-                              color: colors.muted,
-                            ),
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                          ProgressBar(progress: profile.levelProgress),
-                        ],
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: AppSpacing.xl),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '$unlocked of ${achievements.length} unlocked',
+                              style: AppTypography.subtitle.copyWith(
+                                color: colors.foreground,
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.xs),
+                            Text(
+                              'Level ${profile.level} · ${profile.xp} XP total',
+                              style: AppTypography.bodySmall.copyWith(
+                                color: colors.muted,
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            ProgressBar(progress: profile.levelProgress),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: AppSpacing.xxl),
-              for (final achievement in achievements) ...[
-                _AchievementTile(achievement: achievement),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.xxl),
+                for (final achievement in achievements) ...[
+                  _AchievementTile(achievement: achievement),
+                  const SizedBox(height: AppSpacing.md),
+                ],
               ],
-            ],
             ),
           );
         },

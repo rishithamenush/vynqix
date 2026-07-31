@@ -68,35 +68,35 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
           PageBody(
             applyGutter: false,
             child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              context.gutter,
-              AppSpacing.sm,
-              context.gutter,
-              AppSpacing.md,
-            ),
-            child: TextField(
-              controller: _search,
-              decoration: InputDecoration(
-                hintText: 'Search tasks, tags and notes',
-                prefixIcon: const Icon(Icons.search_rounded, size: 20),
-                suffixIcon: !hasText
-                    ? null
-                    : IconButton(
-                        icon: const Icon(Icons.close_rounded, size: 18),
-                        onPressed: () {
-                          _search.clear();
-                          _onQueryChanged('');
-                          setState(() {});
-                        },
-                      ),
+              padding: EdgeInsets.fromLTRB(
+                context.gutter,
+                AppSpacing.sm,
+                context.gutter,
+                AppSpacing.md,
               ),
-              textInputAction: TextInputAction.search,
-              onChanged: (v) {
-                _onQueryChanged(v);
-                // Repaint so the clear button appears/disappears immediately.
-                setState(() {});
-              },
-            ),
+              child: TextField(
+                controller: _search,
+                decoration: InputDecoration(
+                  hintText: 'Search tasks, tags and notes',
+                  prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                  suffixIcon: !hasText
+                      ? null
+                      : IconButton(
+                          icon: const Icon(Icons.close_rounded, size: 18),
+                          onPressed: () {
+                            _search.clear();
+                            _onQueryChanged('');
+                            setState(() {});
+                          },
+                        ),
+                ),
+                textInputAction: TextInputAction.search,
+                onChanged: (v) {
+                  _onQueryChanged(v);
+                  // Repaint so the clear button appears/disappears immediately.
+                  setState(() {});
+                },
+              ),
             ),
           ),
           Expanded(
@@ -135,24 +135,24 @@ class _SearchResults extends ConsumerWidget {
         return PageBody(
           applyGutter: false,
           child: ListView.separated(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: EdgeInsets.fromLTRB(
-            context.gutter,
-            0,
-            context.gutter,
-            AppSpacing.huge,
-          ),
-          itemCount: tasks.length,
-          separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
-          itemBuilder: (context, i) => TaskCard(
-            task: tasks[i],
-            showDate: true,
-            dense: true,
-            use24h: settings.use24HourClock,
-            onTap: () => context.push(Routes.taskEdit(tasks[i].id)),
-            onToggle: () =>
-                ref.read(taskControllerProvider).toggleComplete(tasks[i]),
-          ),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: EdgeInsets.fromLTRB(
+              context.gutter,
+              0,
+              context.gutter,
+              AppSpacing.huge,
+            ),
+            itemCount: tasks.length,
+            separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
+            itemBuilder: (context, i) => TaskCard(
+              task: tasks[i],
+              showDate: true,
+              dense: true,
+              use24h: settings.use24HourClock,
+              onTap: () => context.push(Routes.taskEdit(tasks[i].id)),
+              onToggle: () =>
+                  ref.read(taskControllerProvider).toggleComplete(tasks[i]),
+            ),
           ),
         );
       },
@@ -195,96 +195,98 @@ class _DayHistory extends ConsumerWidget {
         return PageBody(
           applyGutter: false,
           child: ListView.separated(
-          padding: EdgeInsets.fromLTRB(
-            context.gutter,
-            0,
-            context.gutter,
-            AppSpacing.huge,
-          ),
-          itemCount: days.length,
-          separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
-          itemBuilder: (context, i) {
-            final day = days[i];
-            final date = DateX.parseKey(day.dayKey);
-            final log = logsByDay[day.dayKey];
+            padding: EdgeInsets.fromLTRB(
+              context.gutter,
+              0,
+              context.gutter,
+              AppSpacing.huge,
+            ),
+            itemCount: days.length,
+            separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
+            itemBuilder: (context, i) {
+              final day = days[i];
+              final date = DateX.parseKey(day.dayKey);
+              final log = logsByDay[day.dayKey];
 
-            return AppCard(
-              onTap: () => context.push('${Routes.review}?day=${day.dayKey}'),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
+              return AppCard(
+                onTap: () => context.push('${Routes.review}?day=${day.dayKey}'),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            DateX.relativeLabel(date),
+                            style: AppTypography.subtitle.copyWith(
+                              color: colors.foreground,
+                            ),
+                          ),
+                        ),
+                        if (log?.mood != null)
+                          Icon(
+                            AppIcons.mood(log!.mood!),
+                            size: 19,
+                            color: log.mood!.color,
+                          ),
+                        if (day.isPerfect) ...[
+                          const SizedBox(width: AppSpacing.sm),
+                          AppBadge(
+                            label: 'Perfect',
+                            color: colors.success,
+                            compact: true,
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    Row(
+                      children: [
+                        _Meta(
+                          icon: Icons.check_circle_outline_rounded,
+                          label: '${day.completed}/${day.total} tasks',
+                        ),
+                        const SizedBox(width: AppSpacing.lg),
+                        if (day.focusMinutes > 0)
+                          _Meta(
+                            icon: Icons.timer_outlined,
+                            label: DurationX.formatMinutes(day.focusMinutes),
+                          ),
+                        const Spacer(),
+                        Text(
+                          '${(day.completionRate * 100).round()}%',
+                          style: AppTypography.bodySmall.copyWith(
+                            color: day.isPerfect
+                                ? colors.success
+                                : colors.muted,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (log != null && log.highlight.isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.md),
+                      Container(
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        decoration: BoxDecoration(
+                          color: colors.surfaceAlt,
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
+                        ),
                         child: Text(
-                          DateX.relativeLabel(date),
-                          style: AppTypography.subtitle.copyWith(
-                            color: colors.foreground,
+                          log.highlight,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.bodySmall.copyWith(
+                            color: colors.muted,
+                            fontStyle: FontStyle.italic,
                           ),
                         ),
                       ),
-                      if (log?.mood != null)
-                        Icon(
-                          AppIcons.mood(log!.mood!),
-                          size: 19,
-                          color: log.mood!.color,
-                        ),
-                      if (day.isPerfect) ...[
-                        const SizedBox(width: AppSpacing.sm),
-                        AppBadge(
-                          label: 'Perfect',
-                          color: colors.success,
-                          compact: true,
-                        ),
-                      ],
                     ],
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  Row(
-                    children: [
-                      _Meta(
-                        icon: Icons.check_circle_outline_rounded,
-                        label: '${day.completed}/${day.total} tasks',
-                      ),
-                      const SizedBox(width: AppSpacing.lg),
-                      if (day.focusMinutes > 0)
-                        _Meta(
-                          icon: Icons.timer_outlined,
-                          label: DurationX.formatMinutes(day.focusMinutes),
-                        ),
-                      const Spacer(),
-                      Text(
-                        '${(day.completionRate * 100).round()}%',
-                        style: AppTypography.bodySmall.copyWith(
-                          color: day.isPerfect ? colors.success : colors.muted,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (log != null && log.highlight.isNotEmpty) ...[
-                    const SizedBox(height: AppSpacing.md),
-                    Container(
-                      padding: const EdgeInsets.all(AppSpacing.md),
-                      decoration: BoxDecoration(
-                        color: colors.surfaceAlt,
-                        borderRadius: BorderRadius.circular(AppRadius.sm),
-                      ),
-                      child: Text(
-                        log.highlight,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTypography.bodySmall.copyWith(
-                          color: colors.muted,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ),
                   ],
-                ],
-              ),
-            );
-          },
+                ),
+              );
+            },
           ),
         );
       },
@@ -306,10 +308,7 @@ class _Meta extends StatelessWidget {
       children: [
         Icon(icon, size: 13, color: colors.muted),
         const SizedBox(width: AppSpacing.xs),
-        Text(
-          label,
-          style: AppTypography.caption.copyWith(color: colors.muted),
-        ),
+        Text(label, style: AppTypography.caption.copyWith(color: colors.muted)),
       ],
     );
   }

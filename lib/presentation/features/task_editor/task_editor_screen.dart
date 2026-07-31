@@ -17,6 +17,8 @@ import '../../../domain/enums/task_enums.dart';
 import '../../providers/app_providers.dart';
 import '../../providers/task_providers.dart';
 import '../../widgets/app_card.dart';
+import '../../widgets/app_dialog.dart';
+import '../../widgets/app_sheet.dart';
 import '../../widgets/common.dart';
 import '../../widgets/page_body.dart';
 
@@ -165,52 +167,26 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
   }
 
   Future<_DeleteScope?> _askDeleteScope(Task task) {
-    return showModalBottomSheet<_DeleteScope>(
-      context: context,
-      builder: (sheetContext) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.xl,
-                AppSpacing.xl,
-                AppSpacing.xl,
-                AppSpacing.sm,
-              ),
-              child: Text(
-                'This task repeats',
-                style: AppTypography.subtitle.copyWith(
-                  color: context.colors.foreground,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.event_busy_rounded),
-              title: const Text('Delete this occurrence'),
-              subtitle: const Text('Future repeats stay'),
-              onTap: () => Navigator.pop(sheetContext, _DeleteScope.single),
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.delete_sweep_rounded,
-                color: context.colors.error,
-              ),
-              title: Text(
-                'Delete this and all future',
-                style: TextStyle(color: context.colors.error),
-              ),
-              onTap: () => Navigator.pop(sheetContext, _DeleteScope.series),
-            ),
-            ListTile(
-              leading: const Icon(Icons.close_rounded),
-              title: const Text('Cancel'),
-              onTap: () => Navigator.pop(sheetContext),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-          ],
+    return showOptionsSheet<_DeleteScope>(
+      context,
+      title: 'This task repeats',
+      subtitle: '“${task.title}” is part of a series.',
+      cancelLabel: 'Cancel',
+      options: const [
+        SheetOption(
+          value: _DeleteScope.single,
+          label: 'Delete this occurrence',
+          subtitle: 'Future repeats stay',
+          icon: Icons.event_busy_rounded,
         ),
-      ),
+        SheetOption(
+          value: _DeleteScope.series,
+          label: 'Delete this and all future',
+          subtitle: 'The whole series goes',
+          icon: Icons.delete_sweep_rounded,
+          destructive: true,
+        ),
+      ],
     );
   }
 
@@ -476,7 +452,7 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
                             ? 'None'
                             : '$_reminder min before',
                         onTap: _startMinutes == null
-                            ? () => context.showSnack(
+                            ? () => context.showMessage(
                                 'Set a start time before adding a reminder.',
                               )
                             : _pickReminder,
@@ -670,7 +646,8 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
                       ? null
                       : canSave
                       ? _save
-                      : () => context.showSnack('Give the task a title first.'),
+                      : () =>
+                            context.showMessage('Give the task a title first.'),
                   child: Text(
                     _saving
                         ? 'Saving…'
@@ -729,48 +706,37 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
   }
 
   Future<void> _pickRepeat() async {
-    final picked = await showModalBottomSheet<RepeatRule>(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: RepeatRule.values
-              .map(
-                (r) => ListTile(
-                  title: Text(r.label),
-                  trailing: r == _repeat
-                      ? const Icon(Icons.check_rounded)
-                      : null,
-                  onTap: () => Navigator.pop(context, r),
-                ),
-              )
-              .toList(),
-        ),
-      ),
+    final picked = await showOptionsSheet<RepeatRule>(
+      context,
+      title: 'Repeat',
+      selected: _repeat,
+      options: [
+        for (final rule in RepeatRule.values)
+          SheetOption(
+            value: rule,
+            label: rule.label,
+            icon: rule.repeats ? Icons.repeat_rounded : Icons.block_flipped,
+          ),
+      ],
     );
     if (picked != null) setState(() => _repeat = picked);
   }
 
   Future<void> _pickReminder() async {
     const options = [5, 10, 15, 30, 60];
-    final picked = await showModalBottomSheet<int>(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: options
-              .map(
-                (m) => ListTile(
-                  title: Text('$m minutes before'),
-                  trailing: m == _reminder
-                      ? const Icon(Icons.check_rounded)
-                      : null,
-                  onTap: () => Navigator.pop(context, m),
-                ),
-              )
-              .toList(),
-        ),
-      ),
+    final picked = await showOptionsSheet<int>(
+      context,
+      title: 'Reminder',
+      subtitle: 'How long before the start time to notify you.',
+      selected: _reminder,
+      options: [
+        for (final m in options)
+          SheetOption(
+            value: m,
+            label: '$m minutes before',
+            icon: Icons.notifications_none_rounded,
+          ),
+      ],
     );
     if (picked != null) setState(() => _reminder = picked);
   }

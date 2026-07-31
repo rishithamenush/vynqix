@@ -44,7 +44,8 @@ class AppDatabase {
   /// Desktop keeps the file in the app-support directory; mobile uses the
   /// platform's canonical databases directory.
   static Future<String> _databaseDirectory(DatabaseFactory factory) async {
-    if (!kIsWeb && (Platform.isLinux || Platform.isWindows || Platform.isMacOS)) {
+    if (!kIsWeb &&
+        (Platform.isLinux || Platform.isWindows || Platform.isMacOS)) {
       final dir = await getApplicationSupportDirectory();
       await dir.create(recursive: true);
       return dir.path;
@@ -122,9 +123,7 @@ class AppDatabase {
         wasCompleted INTEGER NOT NULL DEFAULT 0
       )
     ''');
-    batch.execute(
-      'CREATE INDEX idx_focus_day ON $tableFocusSessions (dayKey)',
-    );
+    batch.execute('CREATE INDEX idx_focus_day ON $tableFocusSessions (dayKey)');
     batch.execute(
       'CREATE INDEX idx_focus_task ON $tableFocusSessions (taskId)',
     );

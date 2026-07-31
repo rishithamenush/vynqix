@@ -38,6 +38,7 @@ class Task {
   final String title;
   final String description;
   final String notes;
+
   /// Key into `AppIcons.taskIcons`. Null means "use the category icon".
   final String? iconKey;
 

@@ -22,9 +22,7 @@ class InsightsScreen extends ConsumerWidget {
     final async = ref.watch(insightsProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Insights'),
-      ),
+      appBar: AppBar(title: const Text('Insights')),
       body: async.when(
         loading: () => const Padding(
           padding: EdgeInsets.all(AppSpacing.screen),
@@ -38,51 +36,51 @@ class InsightsScreen extends ConsumerWidget {
           maxWidth: Breakpoints.readableContent,
           applyGutter: false,
           child: ListView(
-          padding: EdgeInsets.fromLTRB(
-            context.gutter,
-            AppSpacing.md,
-            context.gutter,
-            AppSpacing.huge,
-          ),
-          children: [
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    colors.primary.withValues(alpha: 0.12),
-                    colors.accent.withValues(alpha: 0.12),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(AppRadius.lg),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.auto_awesome_rounded,
-                    size: 20,
-                    color: colors.primary,
+            padding: EdgeInsets.fromLTRB(
+              context.gutter,
+              AppSpacing.md,
+              context.gutter,
+              AppSpacing.huge,
+            ),
+            children: [
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      colors.primary.withValues(alpha: 0.12),
+                      colors.accent.withValues(alpha: 0.12),
+                    ],
                   ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: Text(
-                      'Patterns found in your last 30 days. Computed on this '
-                      'device — nothing is uploaded.',
-                      style: AppTypography.bodySmall.copyWith(
-                        color: colors.foreground,
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.auto_awesome_rounded,
+                      size: 20,
+                      color: colors.primary,
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: Text(
+                        'Patterns found in your last 30 days. Computed on this '
+                        'device — nothing is uploaded.',
+                        style: AppTypography.bodySmall.copyWith(
+                          color: colors.foreground,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            for (final insight in insights) ...[
-              _InsightCard(insight: insight),
-              const SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.xl),
+              for (final insight in insights) ...[
+                _InsightCard(insight: insight),
+                const SizedBox(height: AppSpacing.md),
+              ],
             ],
-          ],
-        ),
+          ),
         ),
       ),
     );

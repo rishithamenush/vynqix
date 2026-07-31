@@ -126,9 +126,7 @@ class AppShell extends StatelessWidget {
                   icon: Icon(d.icon),
                   selectedIcon: Icon(d.activeIcon),
                   label: Text(d.label),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: AppSpacing.xs,
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                 ),
             ],
           ),

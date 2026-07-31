@@ -23,15 +23,12 @@ class VynqixApp extends ConsumerWidget {
       themeMode: ThemeMode.light,
       builder: (context, child) {
         // Keep the app's typography stable when the OS text scale is extreme.
-        final scale = MediaQuery.textScalerOf(context).clamp(
-          minScaleFactor: 0.85,
-          maxScaleFactor: 1.35,
-        );
+        final scale = MediaQuery.textScalerOf(
+          context,
+        ).clamp(minScaleFactor: 0.85, maxScaleFactor: 1.35);
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(textScaler: scale),
-          child: DismissKeyboardOnTap(
-            child: child ?? const SizedBox.shrink(),
-          ),
+          child: DismissKeyboardOnTap(child: child ?? const SizedBox.shrink()),
         );
       },
     );

@@ -82,18 +82,16 @@ class NotificationsScreen extends ConsumerWidget {
           return PageBody(
             applyGutter: false,
             child: ListView.separated(
-            padding: EdgeInsets.fromLTRB(
-              context.gutter,
-              AppSpacing.md,
-              context.gutter,
-              AppSpacing.huge,
-            ),
-            itemCount: nudges.length,
-            separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
-            itemBuilder: (context, i) => _NudgeCard(
-              nudge: nudges[i],
-              use24h: settings.use24HourClock,
-            ),
+              padding: EdgeInsets.fromLTRB(
+                context.gutter,
+                AppSpacing.md,
+                context.gutter,
+                AppSpacing.huge,
+              ),
+              itemCount: nudges.length,
+              separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
+              itemBuilder: (context, i) =>
+                  _NudgeCard(nudge: nudges[i], use24h: settings.use24HourClock),
             ),
           );
         },
@@ -117,14 +115,8 @@ class _NudgeCard extends StatelessWidget {
       NudgeKind.overdue => (Icons.error_outline_rounded, colors.error),
       NudgeKind.planning => (Icons.event_note_rounded, colors.accent),
       NudgeKind.review => (Icons.nights_stay_outlined, colors.secondary),
-      NudgeKind.streak => (
-        Icons.local_fire_department_rounded,
-        colors.warning,
-      ),
-      NudgeKind.celebration => (
-        Icons.celebration_rounded,
-        colors.success,
-      ),
+      NudgeKind.streak => (Icons.local_fire_department_rounded, colors.warning),
+      NudgeKind.celebration => (Icons.celebration_rounded, colors.success),
     };
 
     return AppCard(

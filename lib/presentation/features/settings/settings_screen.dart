@@ -11,6 +11,8 @@ import '../../../core/utils/date_x.dart';
 import '../../../core/utils/responsive.dart';
 import '../../providers/app_providers.dart';
 import '../../widgets/app_card.dart';
+import '../../widgets/app_dialog.dart';
+import '../../widgets/app_sheet.dart';
 import '../../widgets/common.dart';
 import '../../widgets/page_body.dart';
 import '../../widgets/time_field.dart';
@@ -32,192 +34,200 @@ class SettingsScreen extends ConsumerWidget {
         maxWidth: Breakpoints.readableContent,
         applyGutter: false,
         child: ListView(
-        padding: EdgeInsets.fromLTRB(
-          context.gutter,
-          AppSpacing.md,
-          context.gutter,
-          AppSpacing.huge,
-        ),
-        children: [
-          _Group(
-            title: 'Appearance',
-            children: [
-              _SwitchRow(
-                icon: Icons.schedule_rounded,
-                label: '24-hour clock',
-                value: settings.use24HourClock,
-                onChanged: (v) =>
-                    notifier.edit((s) => s.copyWith(use24HourClock: v)),
-              ),
-              _SwitchRow(
-                icon: Icons.check_circle_outline_rounded,
-                label: 'Show completed tasks',
-                subtitle: 'Keep finished tasks visible on Home',
-                value: settings.showCompletedTasks,
-                onChanged: (v) =>
-                    notifier.edit((s) => s.copyWith(showCompletedTasks: v)),
-              ),
-            ],
+          padding: EdgeInsets.fromLTRB(
+            context.gutter,
+            AppSpacing.md,
+            context.gutter,
+            AppSpacing.huge,
           ),
+          children: [
+            _Group(
+              title: 'Appearance',
+              children: [
+                _SwitchRow(
+                  icon: Icons.schedule_rounded,
+                  label: '24-hour clock',
+                  value: settings.use24HourClock,
+                  onChanged: (v) =>
+                      notifier.edit((s) => s.copyWith(use24HourClock: v)),
+                ),
+                _SwitchRow(
+                  icon: Icons.check_circle_outline_rounded,
+                  label: 'Show completed tasks',
+                  subtitle: 'Keep finished tasks visible on Home',
+                  value: settings.showCompletedTasks,
+                  onChanged: (v) =>
+                      notifier.edit((s) => s.copyWith(showCompletedTasks: v)),
+                ),
+              ],
+            ),
 
-          _Group(
-            title: 'Focus',
-            children: [
-              _StepperRow(
-                icon: Icons.timer_outlined,
-                label: 'Focus block',
-                value: settings.focusMinutes,
-                options: AppConstants.focusDurations,
-                onChanged: (v) =>
-                    notifier.edit((s) => s.copyWith(focusMinutes: v)),
-              ),
-              _StepperRow(
-                icon: Icons.coffee_outlined,
-                label: 'Short break',
-                value: settings.shortBreakMinutes,
-                options: AppConstants.breakDurations,
-                onChanged: (v) =>
-                    notifier.edit((s) => s.copyWith(shortBreakMinutes: v)),
-              ),
-              _StepperRow(
-                icon: Icons.self_improvement_rounded,
-                label: 'Long break',
-                value: settings.longBreakMinutes,
-                options: const [15, 20, 25, 30],
-                onChanged: (v) =>
-                    notifier.edit((s) => s.copyWith(longBreakMinutes: v)),
-              ),
-              _SwitchRow(
-                icon: Icons.play_circle_outline_rounded,
-                label: 'Auto-start breaks',
-                value: settings.autoStartBreaks,
-                onChanged: (v) =>
-                    notifier.edit((s) => s.copyWith(autoStartBreaks: v)),
-              ),
-            ],
-          ),
+            _Group(
+              title: 'Focus',
+              children: [
+                _StepperRow(
+                  icon: Icons.timer_outlined,
+                  label: 'Focus block',
+                  value: settings.focusMinutes,
+                  options: AppConstants.focusDurations,
+                  onChanged: (v) =>
+                      notifier.edit((s) => s.copyWith(focusMinutes: v)),
+                ),
+                _StepperRow(
+                  icon: Icons.coffee_outlined,
+                  label: 'Short break',
+                  value: settings.shortBreakMinutes,
+                  options: AppConstants.breakDurations,
+                  onChanged: (v) =>
+                      notifier.edit((s) => s.copyWith(shortBreakMinutes: v)),
+                ),
+                _StepperRow(
+                  icon: Icons.self_improvement_rounded,
+                  label: 'Long break',
+                  value: settings.longBreakMinutes,
+                  options: const [15, 20, 25, 30],
+                  onChanged: (v) =>
+                      notifier.edit((s) => s.copyWith(longBreakMinutes: v)),
+                ),
+                _SwitchRow(
+                  icon: Icons.play_circle_outline_rounded,
+                  label: 'Auto-start breaks',
+                  value: settings.autoStartBreaks,
+                  onChanged: (v) =>
+                      notifier.edit((s) => s.copyWith(autoStartBreaks: v)),
+                ),
+              ],
+            ),
 
-          _Group(
-            title: 'Reminders',
-            children: [
-              _SwitchRow(
-                icon: Icons.notifications_none_rounded,
-                label: 'Nudges',
-                subtitle: 'Show suggestions in the reminders screen',
-                value: settings.notificationsEnabled,
-                onChanged: (v) =>
-                    notifier.edit((s) => s.copyWith(notificationsEnabled: v)),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                child: TimeField(
-                  label: 'Plan tomorrow at',
-                  icon: Icons.event_note_outlined,
-                  minutes: settings.dailyPlanReminderMinutes,
-                  use24h: settings.use24HourClock,
-                  onChanged: (v) => notifier.edit(
-                    (s) => s.copyWith(dailyPlanReminderMinutes: v),
+            _Group(
+              title: 'Reminders',
+              children: [
+                _SwitchRow(
+                  icon: Icons.notifications_none_rounded,
+                  label: 'Nudges',
+                  subtitle: 'Show suggestions in the reminders screen',
+                  value: settings.notificationsEnabled,
+                  onChanged: (v) =>
+                      notifier.edit((s) => s.copyWith(notificationsEnabled: v)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                  ),
+                  child: TimeField(
+                    label: 'Plan tomorrow at',
+                    icon: Icons.event_note_outlined,
+                    minutes: settings.dailyPlanReminderMinutes,
+                    use24h: settings.use24HourClock,
+                    onChanged: (v) => notifier.edit(
+                      (s) => s.copyWith(dailyPlanReminderMinutes: v),
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                child: TimeField(
-                  label: 'Daily review at',
-                  icon: Icons.nights_stay_outlined,
-                  minutes: settings.reviewReminderMinutes,
-                  use24h: settings.use24HourClock,
-                  onChanged: (v) =>
-                      notifier.edit((s) => s.copyWith(reviewReminderMinutes: v)),
-                ),
-              ),
-            ],
-          ),
-
-          _Group(
-            title: 'Planning',
-            children: [
-              _SwitchRow(
-                icon: Icons.east_rounded,
-                label: 'Carry over unfinished tasks',
-                subtitle: settings.rolloverUnfinished
-                    ? 'Yesterday’s leftovers move to today'
-                    : 'Leftovers are marked as missed',
-                value: settings.rolloverUnfinished,
-                onChanged: (v) =>
-                    notifier.edit((s) => s.copyWith(rolloverUnfinished: v)),
-              ),
-            ],
-          ),
-
-          _Group(
-            title: 'Your day',
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                child: Column(
-                  children: [
-                    TimeField(
-                      label: 'Wake up',
-                      icon: Icons.wb_sunny_outlined,
-                      minutes: profile.wakeMinutes,
-                      use24h: settings.use24HourClock,
-                      onChanged: (v) => ref
-                          .read(profileProvider.notifier)
-                          .edit((p) => p.copyWith(wakeMinutes: v)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                  ),
+                  child: TimeField(
+                    label: 'Daily review at',
+                    icon: Icons.nights_stay_outlined,
+                    minutes: settings.reviewReminderMinutes,
+                    use24h: settings.use24HourClock,
+                    onChanged: (v) => notifier.edit(
+                      (s) => s.copyWith(reviewReminderMinutes: v),
                     ),
-                    TimeField(
-                      label: 'Sleep',
-                      icon: Icons.nightlight_outlined,
-                      minutes: profile.sleepMinutes,
-                      use24h: settings.use24HourClock,
-                      onChanged: (v) => ref
-                          .read(profileProvider.notifier)
-                          .edit((p) => p.copyWith(sleepMinutes: v)),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-              _InfoRow(
-                icon: Icons.battery_charging_full_rounded,
-                label: 'Waking hours',
-                value: DurationX.formatMinutes(profile.wakingMinutes),
-              ),
-              _NavRow(
-                icon: Icons.flag_outlined,
-                label: 'Daily task goal',
-                value: '${profile.dailyTaskTarget} tasks',
-                onTap: () => _pickTarget(context, ref, profile.dailyTaskTarget),
-              ),
-            ],
-          ),
-
-          _Group(
-            title: 'Data',
-            children: [
-              _NavRow(
-                icon: Icons.workspace_premium_outlined,
-                label: 'Premium',
-                value: profile.isPremium ? 'Active' : 'Free',
-                onTap: () => context.push(Routes.premium),
-              ),
-              _NavRow(
-                icon: Icons.delete_outline_rounded,
-                label: 'Reset all data',
-                destructive: true,
-                onTap: () => _reset(context, ref),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: AppSpacing.xl),
-          Center(
-            child: Text(
-              '${AppConstants.appName} · ${AppConstants.tagline}',
-              style: AppTypography.caption.copyWith(color: colors.muted),
+              ],
             ),
-          ),
-        ],
+
+            _Group(
+              title: 'Planning',
+              children: [
+                _SwitchRow(
+                  icon: Icons.east_rounded,
+                  label: 'Carry over unfinished tasks',
+                  subtitle: settings.rolloverUnfinished
+                      ? 'Yesterday’s leftovers move to today'
+                      : 'Leftovers are marked as missed',
+                  value: settings.rolloverUnfinished,
+                  onChanged: (v) =>
+                      notifier.edit((s) => s.copyWith(rolloverUnfinished: v)),
+                ),
+              ],
+            ),
+
+            _Group(
+              title: 'Your day',
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                  ),
+                  child: Column(
+                    children: [
+                      TimeField(
+                        label: 'Wake up',
+                        icon: Icons.wb_sunny_outlined,
+                        minutes: profile.wakeMinutes,
+                        use24h: settings.use24HourClock,
+                        onChanged: (v) => ref
+                            .read(profileProvider.notifier)
+                            .edit((p) => p.copyWith(wakeMinutes: v)),
+                      ),
+                      TimeField(
+                        label: 'Sleep',
+                        icon: Icons.nightlight_outlined,
+                        minutes: profile.sleepMinutes,
+                        use24h: settings.use24HourClock,
+                        onChanged: (v) => ref
+                            .read(profileProvider.notifier)
+                            .edit((p) => p.copyWith(sleepMinutes: v)),
+                      ),
+                    ],
+                  ),
+                ),
+                _InfoRow(
+                  icon: Icons.battery_charging_full_rounded,
+                  label: 'Waking hours',
+                  value: DurationX.formatMinutes(profile.wakingMinutes),
+                ),
+                _NavRow(
+                  icon: Icons.flag_outlined,
+                  label: 'Daily task goal',
+                  value: '${profile.dailyTaskTarget} tasks',
+                  onTap: () =>
+                      _pickTarget(context, ref, profile.dailyTaskTarget),
+                ),
+              ],
+            ),
+
+            _Group(
+              title: 'Data',
+              children: [
+                _NavRow(
+                  icon: Icons.workspace_premium_outlined,
+                  label: 'Premium',
+                  value: profile.isPremium ? 'Active' : 'Free',
+                  onTap: () => context.push(Routes.premium),
+                ),
+                _NavRow(
+                  icon: Icons.delete_outline_rounded,
+                  label: 'Reset all data',
+                  destructive: true,
+                  onTap: () => _reset(context, ref),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: AppSpacing.xl),
+            Center(
+              child: Text(
+                '${AppConstants.appName} · ${AppConstants.tagline}',
+                style: AppTypography.caption.copyWith(color: colors.muted),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -228,21 +238,15 @@ class SettingsScreen extends ConsumerWidget {
     WidgetRef ref,
     int current,
   ) async {
-    final picked = await showModalBottomSheet<int>(
-      context: context,
-      builder: (context) => SafeArea(
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            for (var i = 1; i <= 12; i++)
-              ListTile(
-                title: Text('$i ${i == 1 ? 'task' : 'tasks'} a day'),
-                trailing: i == current ? const Icon(Icons.check_rounded) : null,
-                onTap: () => Navigator.pop(context, i),
-              ),
-          ],
-        ),
-      ),
+    final picked = await showOptionsSheet<int>(
+      context,
+      title: 'Daily target',
+      subtitle: 'How many tasks count as a full day.',
+      selected: current,
+      options: [
+        for (var i = 1; i <= 12; i++)
+          SheetOption(value: i, label: '$i ${i == 1 ? 'task' : 'tasks'} a day'),
+      ],
     );
     if (picked != null) {
       await ref
@@ -276,7 +280,7 @@ class SettingsScreen extends ConsumerWidget {
     await ref.read(profileProvider.future);
 
     if (context.mounted) {
-      context.showSnack('All data deleted.');
+      context.showMessage('All data deleted.');
       context.go(Routes.welcome);
     }
   }
@@ -415,9 +419,7 @@ class _StepperRow extends StatelessWidget {
             underline: const SizedBox.shrink(),
             borderRadius: BorderRadius.circular(AppRadius.md),
             items: options
-                .map(
-                  (m) => DropdownMenuItem(value: m, child: Text('$m min')),
-                )
+                .map((m) => DropdownMenuItem(value: m, child: Text('$m min')))
                 .toList(),
             onChanged: (v) {
               if (v != null) onChanged(v);
@@ -496,7 +498,11 @@ class _NavRow extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, size: 18, color: destructive ? colors.error : colors.muted),
+            Icon(
+              icon,
+              size: 18,
+              color: destructive ? colors.error : colors.muted,
+            ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Text(

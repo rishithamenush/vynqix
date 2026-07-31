@@ -5,6 +5,7 @@ import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/utils/responsive.dart';
 import 'app_card.dart';
+import 'app_dialog.dart';
 
 /// Section title with an optional trailing action, used above every list.
 class SectionHeader extends StatelessWidget {
@@ -535,31 +536,47 @@ class SegmentedSelector<T> extends StatelessWidget {
   }
 }
 
-/// Standard destructive confirmation.
+/// Standard confirmation dialog.
+///
+/// Deliberately not an `AlertDialog`: its actions row puts two identical text
+/// buttons in the corner, which reads as a pair of links. Here the two choices
+/// are full-width pills, with the destructive one filled in red so the
+/// consequence is legible before it is tapped.
 Future<bool> confirmDialog(
   BuildContext context, {
   required String title,
   required String message,
   String confirmLabel = 'Delete',
+  String cancelLabel = 'Cancel',
   bool destructive = true,
 }) async {
   final colors = context.colors;
+  final accent = destructive ? colors.error : colors.primary;
+
   final result = await showDialog<bool>(
     context: context,
-    builder: (context) => AlertDialog(
-      title: Text(title),
-      content: Text(message),
+    builder: (context) => AppDialogBox(
+      icon: destructive
+          ? Icons.delete_outline_rounded
+          : Icons.help_outline_rounded,
+      tint: accent,
+      title: title,
+      message: message,
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: const Text('Cancel'),
-        ),
-        TextButton(
+        FilledButton(
           onPressed: () => Navigator.pop(context, true),
-          style: TextButton.styleFrom(
-            foregroundColor: destructive ? colors.error : colors.primary,
+          style: FilledButton.styleFrom(
+            backgroundColor: accent,
+            minimumSize: const Size.fromHeight(48),
           ),
           child: Text(confirmLabel),
+        ),
+        OutlinedButton(
+          onPressed: () => Navigator.pop(context, false),
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size.fromHeight(48),
+          ),
+          child: Text(cancelLabel),
         ),
       ],
     ),

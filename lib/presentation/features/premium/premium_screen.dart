@@ -8,6 +8,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/responsive.dart';
 import '../../providers/app_providers.dart';
 import '../../widgets/app_card.dart';
+import '../../widgets/app_dialog.dart';
 import '../../widgets/page_body.dart';
 
 /// Free vs Premium comparison.
@@ -47,170 +48,168 @@ class PremiumScreen extends ConsumerWidget {
         maxWidth: Breakpoints.readableContent,
         applyGutter: false,
         child: ListView(
-        padding: EdgeInsets.fromLTRB(
-          context.gutter,
-          AppSpacing.sm,
-          context.gutter,
-          AppSpacing.huge,
-        ),
-        children: [
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.xxl),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [colors.primary, colors.accent],
-              ),
-              borderRadius: BorderRadius.circular(AppRadius.xl),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(
-                  Icons.workspace_premium_rounded,
-                  color: Colors.white,
-                  size: 34,
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                Text(
-                  profile.isPremium
-                      ? 'Premium is active'
-                      : 'Get the full picture',
-                  style: AppTypography.titleLarge.copyWith(
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  profile.isPremium
-                      ? 'Every feature is unlocked. Thank you.'
-                      : 'Deeper analytics, pattern insights and the full '
-                            'achievement catalogue.',
-                  style: AppTypography.body.copyWith(color: Colors.white70),
-                ),
-              ],
-            ),
+          padding: EdgeInsets.fromLTRB(
+            context.gutter,
+            AppSpacing.sm,
+            context.gutter,
+            AppSpacing.huge,
           ),
-          const SizedBox(height: AppSpacing.xxl),
-
-          AppCard(
-            padding: EdgeInsets.zero,
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.lg,
-                    AppSpacing.lg,
-                    AppSpacing.lg,
-                    AppSpacing.md,
-                  ),
-                  child: Row(
-                    children: [
-                      const Spacer(),
-                      SizedBox(
-                        width: 56,
-                        child: Text(
-                          'Free',
-                          textAlign: TextAlign.center,
-                          style: AppTypography.caption.copyWith(
-                            color: colors.muted,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 66,
-                        child: Text(
-                          'Premium',
-                          textAlign: TextAlign.center,
-                          style: AppTypography.caption.copyWith(
-                            color: colors.accent,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+          children: [
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.xxl),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [colors.primary, colors.accent],
                 ),
-                for (final (title, subtitle, free, premium) in _features) ...[
-                  Divider(color: colors.border, height: 1),
+                borderRadius: BorderRadius.circular(AppRadius.xl),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.workspace_premium_rounded,
+                    color: Colors.white,
+                    size: 34,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  Text(
+                    profile.isPremium
+                        ? 'Premium is active'
+                        : 'Get the full picture',
+                    style: AppTypography.titleLarge.copyWith(
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    profile.isPremium
+                        ? 'Every feature is unlocked. Thank you.'
+                        : 'Deeper analytics, pattern insights and the full '
+                              'achievement catalogue.',
+                    style: AppTypography.body.copyWith(color: Colors.white70),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xxl),
+
+            AppCard(
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.lg,
-                      vertical: AppSpacing.md,
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.lg,
+                      AppSpacing.lg,
+                      AppSpacing.lg,
+                      AppSpacing.md,
                     ),
                     child: Row(
                       children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                title,
-                                style: AppTypography.bodySmall.copyWith(
-                                  color: colors.foreground,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              Text(
-                                subtitle,
-                                style: AppTypography.caption.copyWith(
-                                  color: colors.muted,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        const Spacer(),
                         SizedBox(
                           width: 56,
-                          child: Icon(
-                            free
-                                ? Icons.check_rounded
-                                : Icons.remove_rounded,
-                            size: 18,
-                            color: free ? colors.success : colors.border,
+                          child: Text(
+                            'Free',
+                            textAlign: TextAlign.center,
+                            style: AppTypography.caption.copyWith(
+                              color: colors.muted,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
                         SizedBox(
                           width: 66,
-                          child: Icon(
-                            premium
-                                ? Icons.check_rounded
-                                : Icons.remove_rounded,
-                            size: 18,
-                            color: premium ? colors.accent : colors.border,
+                          child: Text(
+                            'Premium',
+                            textAlign: TextAlign.center,
+                            style: AppTypography.caption.copyWith(
+                              color: colors.accent,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
+                  for (final (title, subtitle, free, premium) in _features) ...[
+                    Divider(color: colors.border, height: 1),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.lg,
+                        vertical: AppSpacing.md,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  title,
+                                  style: AppTypography.bodySmall.copyWith(
+                                    color: colors.foreground,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                Text(
+                                  subtitle,
+                                  style: AppTypography.caption.copyWith(
+                                    color: colors.muted,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            width: 56,
+                            child: Icon(
+                              free ? Icons.check_rounded : Icons.remove_rounded,
+                              size: 18,
+                              color: free ? colors.success : colors.border,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 66,
+                            child: Icon(
+                              premium
+                                  ? Icons.check_rounded
+                                  : Icons.remove_rounded,
+                              size: 18,
+                              color: premium ? colors.accent : colors.border,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.xxl),
+            const SizedBox(height: AppSpacing.xxl),
 
-          if (profile.isPremium)
-            OutlinedButton(
-              onPressed: () => ref
-                  .read(profileProvider.notifier)
-                  .edit((p) => p.copyWith(isPremium: false)),
-              child: const Text('Turn off premium'),
-            )
-          else
-            FilledButton(
-              onPressed: () => _activate(context, ref),
-              child: const Text('Unlock Premium'),
+            if (profile.isPremium)
+              OutlinedButton(
+                onPressed: () => ref
+                    .read(profileProvider.notifier)
+                    .edit((p) => p.copyWith(isPremium: false)),
+                child: const Text('Turn off premium'),
+              )
+            else
+              FilledButton(
+                onPressed: () => _activate(context, ref),
+                child: const Text('Unlock Premium'),
+              ),
+            const SizedBox(height: AppSpacing.md),
+            Center(
+              child: Text(
+                'No billing is connected in this build.',
+                style: AppTypography.caption.copyWith(color: colors.muted),
+              ),
             ),
-          const SizedBox(height: AppSpacing.md),
-          Center(
-            child: Text(
-              'No billing is connected in this build.',
-              style: AppTypography.caption.copyWith(color: colors.muted),
-            ),
-          ),
-        ],
+          ],
         ),
       ),
     );
@@ -221,7 +220,7 @@ class PremiumScreen extends ConsumerWidget {
         .read(profileProvider.notifier)
         .edit((p) => p.copyWith(isPremium: true));
     if (context.mounted) {
-      context.showSnack('Premium features unlocked.');
+      context.showMessage('Premium features unlocked.');
       context.pop();
     }
   }

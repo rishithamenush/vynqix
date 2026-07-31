@@ -195,10 +195,17 @@ abstract final class AppTheme {
       snackBarTheme: SnackBarThemeData(
         backgroundColor: c.foreground,
         contentTextStyle: AppTypography.bodySmall.copyWith(color: Colors.white),
-        actionTextColor: c.primarySoft,
+        actionTextColor: Colors.white,
         behavior: SnackBarBehavior.floating,
+        elevation: 6,
+        insetPadding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          0,
+          AppSpacing.lg,
+          AppSpacing.lg,
+        ),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderRadius: BorderRadius.circular(AppRadius.xl),
         ),
       ),
 

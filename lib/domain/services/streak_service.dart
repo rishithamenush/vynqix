@@ -36,8 +36,7 @@ abstract final class StreakService {
     DateTime? previous;
     for (final key in sorted) {
       final date = DateX.parseKey(key);
-      if (previous != null &&
-          date.difference(previous).inDays == 1) {
+      if (previous != null && date.difference(previous).inDays == 1) {
         run++;
       } else {
         run = 1;
@@ -46,6 +45,9 @@ abstract final class StreakService {
       previous = date;
     }
 
-    return StreakInfo(current: current, longest: longest < current ? current : longest);
+    return StreakInfo(
+      current: current,
+      longest: longest < current ? current : longest,
+    );
   }
 }

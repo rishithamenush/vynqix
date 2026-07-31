@@ -14,6 +14,7 @@ import '../../providers/app_providers.dart';
 import '../../providers/stats_providers.dart';
 import '../../providers/task_providers.dart';
 import '../../widgets/app_card.dart';
+import '../../widgets/app_dialog.dart';
 import '../../widgets/common.dart';
 import '../../widgets/day_strip.dart';
 import '../../widgets/page_body.dart';
@@ -52,8 +53,7 @@ class PlannerScreen extends ConsumerWidget {
           DayStrip(
             selected: selected,
             markedDays: markedDays,
-            onSelected: (d) =>
-                ref.read(selectedDayProvider.notifier).state = d,
+            onSelected: (d) => ref.read(selectedDayProvider.notifier).state = d,
           ),
           const SizedBox(height: AppSpacing.md),
           PageBody(applyGutter: false, child: _CapacityBar(dayKey: dayKey)),
@@ -71,7 +71,8 @@ class PlannerScreen extends ConsumerWidget {
                 if (tasks.isEmpty) {
                   return EmptyState(
                     icon: Icons.event_note_outlined,
-                    title: 'Nothing planned for '
+                    title:
+                        'Nothing planned for '
                         '${DateX.relativeLabel(selected).toLowerCase()}',
                     message: 'Build the day now and start it already decided.',
                     actionLabel: 'Add a task',
@@ -97,14 +98,12 @@ class PlannerScreen extends ConsumerWidget {
     String targetKey,
   ) async {
     if (targetKey == DateX.todayKey) {
-      context.showSnack('Pick a different day to copy today into.');
+      context.showMessage('Pick a different day to copy today into.');
       return;
     }
-    final today = await ref.read(
-      tasksForDayProvider(DateX.todayKey).future,
-    );
+    final today = await ref.read(tasksForDayProvider(DateX.todayKey).future);
     if (today.isEmpty) {
-      if (context.mounted) context.showSnack('Today has no tasks to copy.');
+      if (context.mounted) context.showMessage('Today has no tasks to copy.');
       return;
     }
     final controller = ref.read(taskControllerProvider);
@@ -112,7 +111,7 @@ class PlannerScreen extends ConsumerWidget {
       await controller.duplicateTo(task, targetKey);
     }
     if (context.mounted) {
-      context.showSnack('Copied ${today.length} tasks.');
+      context.showMessage('Copied ${today.length} tasks.');
     }
   }
 
@@ -128,7 +127,7 @@ class PlannerScreen extends ConsumerWidget {
     final unscheduled = tasks.where((t) => !t.isScheduled).toList();
     if (unscheduled.isEmpty) {
       if (context.mounted) {
-        context.showSnack('Everything already has a time.');
+        context.showMessage('Everything already has a time.');
       }
       return;
     }
@@ -149,7 +148,7 @@ class PlannerScreen extends ConsumerWidget {
     }
 
     if (context.mounted) {
-      context.showSnack(
+      context.showMessage(
         count == 0
             ? 'No room left in the day.'
             : 'Scheduled $count ${count == 1 ? 'task' : 'tasks'}.',
@@ -197,10 +196,7 @@ class _PlannerList extends ConsumerWidget {
         ],
         if (backlog.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.lg),
-          _MiniHeader(
-            label: 'UNSCHEDULED',
-            trailing: 'drag to reorder',
-          ),
+          _MiniHeader(label: 'UNSCHEDULED', trailing: 'drag to reorder'),
           const SizedBox(height: AppSpacing.md),
           ReorderableListView.builder(
             shrinkWrap: true,
@@ -373,9 +369,7 @@ class _CapacityBar extends ConsumerWidget {
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
-                    overloaded
-                        ? 'This day is heavily booked'
-                        : 'Day capacity',
+                    overloaded ? 'This day is heavily booked' : 'Day capacity',
                     style: AppTypography.bodySmall.copyWith(
                       color: colors.foreground,
                       fontWeight: FontWeight.w600,

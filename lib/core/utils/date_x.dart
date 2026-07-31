@@ -16,8 +16,7 @@ extension DateKeyX on DateTime {
 
   bool get isToday => isSameDay(DateTime.now());
 
-  bool get isTomorrow =>
-      isSameDay(DateTime.now().add(const Duration(days: 1)));
+  bool get isTomorrow => isSameDay(DateTime.now().add(const Duration(days: 1)));
 
   bool get isYesterday =>
       isSameDay(DateTime.now().subtract(const Duration(days: 1)));

@@ -7,7 +7,9 @@ import '../local/app_database.dart';
 import '../local/mappers.dart';
 import 'change_notifier_repository.dart';
 
-class TaskRepositoryImpl with ChangeNotifierRepository implements TaskRepository {
+class TaskRepositoryImpl
+    with ChangeNotifierRepository
+    implements TaskRepository {
   TaskRepositoryImpl(this._db);
 
   final AppDatabase _db;
@@ -112,9 +114,7 @@ class TaskRepositoryImpl with ChangeNotifierRepository implements TaskRepository
 
   @override
   Future<Set<String>> daysWithTasks() async {
-    final rows = await _c.rawQuery(
-      'SELECT DISTINCT dayKey FROM $_table',
-    );
+    final rows = await _c.rawQuery('SELECT DISTINCT dayKey FROM $_table');
     return rows.map((r) => r['dayKey'] as String).toSet();
   }
 

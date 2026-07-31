@@ -113,7 +113,8 @@ abstract final class InsightsService {
       insights.add(
         Insight(
           id: 'focus',
-          title: '${DurationX.formatMinutes(stats.totalFocusMinutes)} of deep focus',
+          title:
+              '${DurationX.formatMinutes(stats.totalFocusMinutes)} of deep focus',
           body:
               'That averages ${DurationX.formatMinutes(avg)} on the days you '
               'were active. Focus sessions correlate with the days you clear '
@@ -204,7 +205,8 @@ abstract final class InsightsService {
       insights.add(
         Insight(
           id: 'perfect',
-          title: '${stats.perfectDays} perfect ${stats.perfectDays == 1 ? 'day' : 'days'}',
+          title:
+              '${stats.perfectDays} perfect ${stats.perfectDays == 1 ? 'day' : 'days'}',
           body:
               'Days where every planned task got done. Look at what those '
               'days had in common — usually a shorter list and an earlier '

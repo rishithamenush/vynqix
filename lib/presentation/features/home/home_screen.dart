@@ -14,6 +14,8 @@ import '../../../domain/entities/task.dart';
 import '../../providers/app_providers.dart';
 import '../../providers/stats_providers.dart';
 import '../../providers/task_providers.dart';
+import '../../widgets/app_dialog.dart';
+import '../../widgets/app_sheet.dart';
 import '../../widgets/common.dart';
 import '../../widgets/page_body.dart';
 import '../../widgets/task_card.dart';
@@ -55,10 +57,22 @@ class HomeScreen extends ConsumerWidget {
               _ => context.push(Routes.settings),
             },
             itemBuilder: (context) => const [
-              PopupMenuItem(value: 'focus', child: Text('Focus timer')),
-              PopupMenuItem(value: 'review', child: Text('Daily review')),
-              PopupMenuItem(value: 'insights', child: Text('Insights')),
-              PopupMenuItem(value: 'settings', child: Text('Settings')),
+              PopupMenuItem(
+                value: 'focus',
+                child: _MenuRow(Icons.timer_outlined, 'Focus timer'),
+              ),
+              PopupMenuItem(
+                value: 'review',
+                child: _MenuRow(Icons.rate_review_outlined, 'Daily review'),
+              ),
+              PopupMenuItem(
+                value: 'insights',
+                child: _MenuRow(Icons.auto_awesome_outlined, 'Insights'),
+              ),
+              PopupMenuItem(
+                value: 'settings',
+                child: _MenuRow(Icons.settings_outlined, 'Settings'),
+              ),
             ],
           ),
           const SizedBox(width: AppSpacing.xs),
@@ -231,22 +245,14 @@ class _TaskRow extends ConsumerWidget {
     List<Task> removed,
   ) {
     if (removed.isEmpty) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(
-            removed.length == 1
-                ? 'Deleted “${removed.first.title}”'
-                : 'Deleted ${removed.length} tasks',
-          ),
-          duration: const Duration(seconds: 5),
-          action: SnackBarAction(
-            label: 'Undo',
-            onPressed: () => controller.restore(removed),
-          ),
-        ),
-      );
+    context.showMessage(
+      removed.length == 1
+          ? 'Deleted “${removed.first.title}”'
+          : 'Deleted ${removed.length} tasks',
+      icon: Icons.delete_outline_rounded,
+      actionLabel: 'Undo',
+      onAction: () => controller.restore(removed),
+    );
   }
 
   Future<void> _complete(
@@ -265,52 +271,72 @@ class _TaskRow extends ConsumerWidget {
     WidgetRef ref,
     Task task,
   ) async {
-    final controller = ref.read(taskControllerProvider);
-    await showModalBottomSheet<void>(
-      context: context,
-      builder: (sheetContext) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: AppSpacing.sm),
-            ListTile(
-              leading: const Icon(Icons.play_arrow_rounded),
-              title: const Text('Start focus session'),
-              onTap: () {
-                Navigator.pop(sheetContext);
-                context.push('${Routes.focus}?taskId=${task.id}');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.east_rounded),
-              title: const Text('Move to tomorrow'),
-              onTap: () async {
-                Navigator.pop(sheetContext);
-                await controller.reschedule(task, dayKey: DateX.tomorrowKey);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.copy_rounded),
-              title: const Text('Duplicate to tomorrow'),
-              onTap: () async {
-                Navigator.pop(sheetContext);
-                await controller.duplicateTo(task, DateX.tomorrowKey);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.remove_circle_outline_rounded),
-              title: const Text('Skip today'),
-              onTap: () async {
-                Navigator.pop(sheetContext);
-                await controller.skip(task);
-              },
-            ),
-            const SizedBox(height: AppSpacing.sm),
-          ],
+    final action = await showOptionsSheet<_TaskAction>(
+      context,
+      title: task.title,
+      subtitle: 'Quick actions',
+      options: const [
+        SheetOption(
+          value: _TaskAction.focus,
+          label: 'Start focus session',
+          icon: Icons.play_arrow_rounded,
         ),
-      ),
+        SheetOption(
+          value: _TaskAction.moveToTomorrow,
+          label: 'Move to tomorrow',
+          subtitle: 'Reschedules this task',
+          icon: Icons.east_rounded,
+        ),
+        SheetOption(
+          value: _TaskAction.duplicateToTomorrow,
+          label: 'Duplicate to tomorrow',
+          subtitle: 'Keeps today’s copy',
+          icon: Icons.copy_rounded,
+        ),
+        SheetOption(
+          value: _TaskAction.skip,
+          label: 'Skip today',
+          icon: Icons.remove_circle_outline_rounded,
+        ),
+      ],
     );
+    if (action == null || !context.mounted) return;
+
+    final controller = ref.read(taskControllerProvider);
+    switch (action) {
+      case _TaskAction.focus:
+        context.push('${Routes.focus}?taskId=${task.id}');
+      case _TaskAction.moveToTomorrow:
+        await controller.reschedule(task, dayKey: DateX.tomorrowKey);
+      case _TaskAction.duplicateToTomorrow:
+        await controller.duplicateTo(task, DateX.tomorrowKey);
+      case _TaskAction.skip:
+        await controller.skip(task);
+    }
   }
+}
+
+/// The long-press menu on a task row.
+enum _TaskAction { focus, moveToTomorrow, duplicateToTomorrow, skip }
+
+/// Icon + label, so the overflow menu matches the option rows in every sheet.
+class _MenuRow extends StatelessWidget {
+  const _MenuRow(this.icon, this.label);
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      Icon(icon, size: 19, color: context.colors.muted),
+      const SizedBox(width: AppSpacing.md),
+      Text(
+        label,
+        style: AppTypography.body.copyWith(color: context.colors.foreground),
+      ),
+    ],
+  );
 }
 
 /// Date, completion count and a thin progress bar — the whole header.
@@ -394,24 +420,11 @@ class _ProgressHeader extends ConsumerWidget {
 
 /// Plain confirmation that an achievement was unlocked.
 void showAchievementSnack(BuildContext context, AchievementDefinition def) {
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            Icon(AppIcons.badge(def.iconKey), size: 18, color: Colors.white),
-            const SizedBox(width: AppSpacing.md - 2),
-            Expanded(
-              child: Text('${def.title} unlocked  ·  +${def.xpReward} XP'),
-            ),
-          ],
-        ),
-        action: SnackBarAction(
-          label: 'View',
-          textColor: context.colors.background,
-          onPressed: () => context.push(Routes.achievements),
-        ),
-      ),
-    );
+  context.showMessage(
+    '${def.title} unlocked · +${def.xpReward} XP',
+    icon: AppIcons.badge(def.iconKey),
+    isSuccess: true,
+    actionLabel: 'View',
+    onAction: () => context.push(Routes.achievements),
+  );
 }

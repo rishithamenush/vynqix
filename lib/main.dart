@@ -30,10 +30,7 @@ Future<void> main() async {
   await _runStartupTasks(container);
 
   runApp(
-    UncontrolledProviderScope(
-      container: container,
-      child: const VynqixApp(),
-    ),
+    UncontrolledProviderScope(container: container, child: const VynqixApp()),
   );
 }
 

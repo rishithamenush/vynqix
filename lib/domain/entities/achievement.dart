@@ -28,6 +28,7 @@ class AchievementDefinition {
   final String id;
   final String title;
   final String description;
+
   /// Key into `AppIcons.badge`. The domain layer never holds an IconData.
   final String iconKey;
   final AchievementMetric metric;

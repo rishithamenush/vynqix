@@ -13,19 +13,19 @@ class WelcomeScreen extends StatelessWidget {
 
   static const _highlights = [
     (
-      Icons.event_note_rounded,
+      Icons.event_note_outlined,
       'Plan tomorrow tonight',
-      'Lay out your day on a timeline before it starts.',
+      'Lay out your day before it starts.',
     ),
     (
       Icons.timer_outlined,
       'Focus, then rest',
-      'Run tasks inside timed blocks and log real effort.',
+      'Run tasks inside timed blocks.',
     ),
     (
-      Icons.insights_rounded,
+      Icons.insights_outlined,
       'See your patterns',
-      'Streaks, peak hours and honest completion rates.',
+      'Streaks, peak hours, real completion rates.',
     ),
   ];
 
@@ -34,117 +34,90 @@ class WelcomeScreen extends StatelessWidget {
     final colors = context.colors;
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              colors.primary.withValues(alpha: 0.14),
-              colors.background,
-              colors.accent.withValues(alpha: 0.08),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.screen + 4,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Spacer(flex: 2),
-                Container(
-                  width: 72,
-                  height: 72,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [colors.primary, colors.accent],
-                    ),
-                    borderRadius: BorderRadius.circular(AppRadius.xl),
-                    boxShadow: [
-                      BoxShadow(
-                        color: colors.primary.withValues(alpha: 0.35),
-                        blurRadius: 28,
-                        offset: const Offset(0, 10),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Spacer(flex: 2),
+
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: colors.primary,
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                ),
+                child: const Icon(
+                  Icons.check_rounded,
+                  color: Colors.white,
+                  size: 36,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+
+              Text(
+                AppConstants.appName,
+                style: AppTypography.display.copyWith(
+                  color: colors.foreground,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                AppConstants.tagline,
+                style: AppTypography.body.copyWith(color: colors.muted),
+              ),
+
+              const Spacer(),
+
+              for (final (icon, title, body) in _highlights)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(icon, size: 22, color: colors.primary),
+                      const SizedBox(width: AppSpacing.lg),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              style: AppTypography.subtitle.copyWith(
+                                color: colors.foreground,
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.xxs),
+                            Text(
+                              body,
+                              style: AppTypography.bodySmall.copyWith(
+                                color: colors.muted,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                  child: const Icon(
-                    Icons.check_rounded,
-                    color: Colors.white,
-                    size: 40,
-                  ),
                 ),
-                const SizedBox(height: AppSpacing.xxl),
-                Text(
-                  AppConstants.appName,
-                  style: AppTypography.display.copyWith(
-                    color: colors.foreground,
-                    fontSize: 40,
-                  ),
+
+              const Spacer(),
+
+              FilledButton(
+                onPressed: () => context.push(Routes.onboardingProfile),
+                child: const Text('Get started'),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Center(
+                child: Text(
+                  'Everything stays on this device. No account needed.',
+                  style: AppTypography.caption.copyWith(color: colors.muted),
                 ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  AppConstants.tagline,
-                  style: AppTypography.subtitle.copyWith(color: colors.muted),
-                ),
-                const Spacer(),
-                for (final (icon, title, body) in _highlights)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.xl),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(AppSpacing.md - 2),
-                          decoration: BoxDecoration(
-                            color: colors.surface,
-                            borderRadius: BorderRadius.circular(AppRadius.md),
-                            border: Border.all(color: colors.border),
-                          ),
-                          child: Icon(icon, size: 20, color: colors.primary),
-                        ),
-                        const SizedBox(width: AppSpacing.lg),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                title,
-                                style: AppTypography.subtitle.copyWith(
-                                  color: colors.foreground,
-                                ),
-                              ),
-                              const SizedBox(height: AppSpacing.xxs),
-                              Text(
-                                body,
-                                style: AppTypography.bodySmall.copyWith(
-                                  color: colors.muted,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                const Spacer(),
-                FilledButton(
-                  onPressed: () => context.push(Routes.onboardingProfile),
-                  child: const Text('Get started'),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                Center(
-                  child: Text(
-                    'Everything stays on this device. No account needed.',
-                    style: AppTypography.caption.copyWith(color: colors.muted),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xl),
-              ],
-            ),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+            ],
           ),
         ),
       ),

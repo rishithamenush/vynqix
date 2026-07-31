@@ -19,7 +19,9 @@ class InsightsScreen extends ConsumerWidget {
     final async = ref.watch(insightsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Insights')),
+      appBar: AppBar(
+        title: const Text('Insights'),
+      ),
       body: async.when(
         loading: () => const Padding(
           padding: EdgeInsets.all(AppSpacing.screen),

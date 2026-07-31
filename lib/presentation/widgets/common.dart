@@ -155,15 +155,15 @@ class EmptyState extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: compact ? 56 : 76,
-              height: compact ? 56 : 76,
+              width: compact ? 60 : 80,
+              height: compact ? 60 : 80,
               decoration: BoxDecoration(
                 color: colors.primary.withValues(alpha: 0.10),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
-                size: compact ? 26 : 34,
+                size: compact ? 27 : 35,
                 color: colors.primary,
               ),
             ),
@@ -311,6 +311,9 @@ class SkeletonList extends StatelessWidget {
 }
 
 /// A labelled number, the building block of every stats row.
+///
+/// The icon sits in a gradient chip and the value is gradient-masked, which
+/// is what lifts a grid of these out of "plain dashboard" territory.
 class StatTile extends StatelessWidget {
   const StatTile({
     super.key,

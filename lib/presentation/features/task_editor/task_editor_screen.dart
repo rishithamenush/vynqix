@@ -388,7 +388,9 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
 
             TextField(
               controller: _title,
-              autofocus: !_isEditing,
+              // Deliberately not autofocused: the keyboard covering half the
+              // screen the moment the editor opens hides the icon picker and
+              // the schedule controls right below the title.
               textCapitalization: TextCapitalization.sentences,
               style: AppTypography.title.copyWith(color: colors.foreground),
               decoration: const InputDecoration(

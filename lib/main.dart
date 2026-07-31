@@ -10,9 +10,13 @@ import 'presentation/providers/task_providers.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // All orientations: the layout adapts at 600dp, so landscape and tablets
+  // are supported rather than locked out.
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
   ]);
 
   // The database is opened before the first frame so no screen has to handle

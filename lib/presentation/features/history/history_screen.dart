@@ -11,12 +11,14 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/token_styles.dart';
 import '../../../core/utils/date_x.dart';
+import '../../../core/utils/responsive.dart';
 import '../../providers/app_providers.dart';
 import '../../providers/review_providers.dart';
 import '../../providers/stats_providers.dart';
 import '../../providers/task_providers.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/common.dart';
+import '../../widgets/page_body.dart';
 import '../../widgets/task_card.dart';
 
 /// Past days, plus full-text search across every task ever created.
@@ -63,11 +65,13 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       appBar: AppBar(title: const Text('History')),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.screen,
+          PageBody(
+            applyGutter: false,
+            child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              context.gutter,
               AppSpacing.sm,
-              AppSpacing.screen,
+              context.gutter,
               AppSpacing.md,
             ),
             child: TextField(
@@ -92,6 +96,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                 // Repaint so the clear button appears/disappears immediately.
                 setState(() {});
               },
+            ),
             ),
           ),
           Expanded(
@@ -127,12 +132,14 @@ class _SearchResults extends ConsumerWidget {
             compact: true,
           );
         }
-        return ListView.separated(
+        return PageBody(
+          applyGutter: false,
+          child: ListView.separated(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screen,
+          padding: EdgeInsets.fromLTRB(
+            context.gutter,
             0,
-            AppSpacing.screen,
+            context.gutter,
             AppSpacing.huge,
           ),
           itemCount: tasks.length,
@@ -145,6 +152,7 @@ class _SearchResults extends ConsumerWidget {
             onTap: () => context.push(Routes.taskEdit(tasks[i].id)),
             onToggle: () =>
                 ref.read(taskControllerProvider).toggleComplete(tasks[i]),
+          ),
           ),
         );
       },
@@ -184,11 +192,13 @@ class _DayHistory extends ConsumerWidget {
           );
         }
 
-        return ListView.separated(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screen,
+        return PageBody(
+          applyGutter: false,
+          child: ListView.separated(
+          padding: EdgeInsets.fromLTRB(
+            context.gutter,
             0,
-            AppSpacing.screen,
+            context.gutter,
             AppSpacing.huge,
           ),
           itemCount: days.length,
@@ -275,6 +285,7 @@ class _DayHistory extends ConsumerWidget {
               ),
             );
           },
+          ),
         );
       },
     );

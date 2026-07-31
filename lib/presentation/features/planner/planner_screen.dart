@@ -7,6 +7,7 @@ import '../../../core/extensions/context_x.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_x.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../domain/entities/task.dart';
 import '../../../domain/services/schedule_service.dart';
 import '../../providers/app_providers.dart';
@@ -15,6 +16,7 @@ import '../../providers/task_providers.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/common.dart';
 import '../../widgets/day_strip.dart';
+import '../../widgets/page_body.dart';
 import '../../widgets/progress_ring.dart';
 import '../../widgets/task_card.dart';
 
@@ -54,7 +56,7 @@ class PlannerScreen extends ConsumerWidget {
                 ref.read(selectedDayProvider.notifier).state = d,
           ),
           const SizedBox(height: AppSpacing.md),
-          _CapacityBar(dayKey: dayKey),
+          PageBody(applyGutter: false, child: _CapacityBar(dayKey: dayKey)),
           Expanded(
             child: tasksAsync.when(
               loading: () => const Padding(
@@ -77,7 +79,10 @@ class PlannerScreen extends ConsumerWidget {
                         context.push('${Routes.taskNew}?day=$dayKey'),
                   );
                 }
-                return _PlannerList(tasks: tasks, dayKey: dayKey);
+                return PageBody(
+                  applyGutter: false,
+                  child: _PlannerList(tasks: tasks, dayKey: dayKey),
+                );
               },
             ),
           ),
@@ -168,10 +173,10 @@ class _PlannerList extends ConsumerWidget {
     final backlog = tasks.where((t) => !t.isScheduled).toList();
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.screen,
+      padding: EdgeInsets.fromLTRB(
+        context.gutter,
         AppSpacing.sm,
-        AppSpacing.screen,
+        context.gutter,
         120,
       ),
       children: [
@@ -350,7 +355,7 @@ class _CapacityBar extends ConsumerWidget {
     final overloaded = ratio > 0.7;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+      padding: EdgeInsets.symmetric(horizontal: context.gutter),
       child: AppCard(
         padding: const EdgeInsets.all(AppSpacing.lg - 2),
         child: Column(

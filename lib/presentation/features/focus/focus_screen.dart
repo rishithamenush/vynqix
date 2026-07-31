@@ -7,6 +7,7 @@ import '../../../core/extensions/context_x.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_x.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../domain/enums/task_enums.dart';
 import '../../providers/focus_providers.dart';
 import '../../providers/task_providers.dart';
@@ -103,11 +104,16 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
                 ),
               ),
 
-            const SizedBox(height: AppSpacing.huge),
+            SizedBox(height: context.isShort ? AppSpacing.lg : AppSpacing.huge),
 
             ProgressRing(
               progress: state.progress,
-              size: 264,
+              // Scale to the smaller viewport dimension so the ring fits in
+              // landscape and on small phones without clipping.
+              size: (context.screenWidth * 0.62).clamp(
+                180.0,
+                context.isShort ? 200.0 : 264.0,
+              ),
               strokeWidth: 14,
               color: accent,
               gradient: !isBreak,

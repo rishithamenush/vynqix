@@ -10,11 +10,13 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/token_styles.dart';
 import '../../../core/utils/date_x.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../domain/entities/stats.dart';
 import '../../../domain/enums/task_enums.dart';
 import '../../providers/stats_providers.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/common.dart';
+import '../../widgets/page_body.dart';
 
 /// Productivity charts over a selectable window.
 class AnalyticsScreen extends ConsumerWidget {
@@ -58,13 +60,18 @@ class AnalyticsScreen extends ConsumerWidget {
           }
 
           return ListView(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.screen,
+            padding: EdgeInsets.fromLTRB(
+              context.gutter,
               AppSpacing.md,
-              AppSpacing.screen,
+              context.gutter,
               120,
             ),
             children: [
+              PageBody(
+                applyGutter: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
               SegmentedSelector<int>(
                 values: const [7, 30, 90],
                 selected: range,
@@ -75,12 +82,14 @@ class AnalyticsScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.xl),
 
               GridView.count(
-                crossAxisCount: 2,
+                // Two tiles on a phone, more as the window widens, so the
+                // cards never stretch into letterboxes.
+                crossAxisCount: context.statColumns,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 mainAxisSpacing: AppSpacing.md,
                 crossAxisSpacing: AppSpacing.md,
-                childAspectRatio: 1.5,
+                childAspectRatio: context.isSmallPhone ? 1.35 : 1.5,
                 children: [
                   StatTile(
                     value: '${stats.totalCompleted}',
@@ -136,6 +145,9 @@ class AnalyticsScreen extends ConsumerWidget {
                   subtitle: 'From your daily reviews',
                   child: _MoodChart(stats: stats),
                 ),
+                  ],
+                ),
+              ),
             ],
           );
         },
@@ -173,7 +185,7 @@ class _ChartCard extends StatelessWidget {
             style: AppTypography.caption.copyWith(color: colors.muted),
           ),
           const SizedBox(height: AppSpacing.xl),
-          SizedBox(height: 180, child: child),
+          SizedBox(height: context.isShort ? 150 : 180, child: child),
         ],
       ),
     );

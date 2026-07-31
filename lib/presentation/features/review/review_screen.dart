@@ -8,12 +8,14 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/token_styles.dart';
 import '../../../core/utils/date_x.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../domain/entities/day_log.dart';
 import '../../../domain/enums/task_enums.dart';
 import '../../providers/review_providers.dart';
 import '../../providers/stats_providers.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/common.dart';
+import '../../widgets/page_body.dart';
 
 /// End-of-day reflection: how the day felt, what worked, what to change.
 class ReviewScreen extends ConsumerStatefulWidget {
@@ -113,13 +115,16 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
             ],
           ),
           body: SafeArea(
-            child: ListView(
+            child: PageBody(
+              maxWidth: Breakpoints.readableContent,
+              applyGutter: false,
+              child: ListView(
               keyboardDismissBehavior:
                   ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.screen,
+              padding: EdgeInsets.fromLTRB(
+                context.gutter,
                 AppSpacing.sm,
-                AppSpacing.screen,
+                context.gutter,
                 AppSpacing.huge,
               ),
               children: [
@@ -262,6 +267,7 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
                   controller: _improvement,
                 ),
               ],
+            ),
             ),
           ),
         );

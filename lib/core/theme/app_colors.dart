@@ -29,7 +29,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.overlay,
   });
 
-  /// Brand indigo. Buttons, checkboxes, selected states, progress.
+  /// Brand blue. Buttons, checkboxes, selected states, progress.
   final Color primary;
 
   /// Tinted primary for selected-row and indicator backgrounds.
@@ -64,21 +64,23 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color overlay;
 
   static const light = AppColors(
-    primary: Color(0xFF4F46E5),
-    primarySoft: Color(0xFFEEF0FE),
-    secondary: Color(0xFF6366F1),
-    accent: Color(0xFF7C3AED),
-    background: Color(0xFFF7F8FA),
+    // Focus Blue. Task apps converge on blue because it reads calm and
+    // focused; violet/indigo reads as a creative or AI tool instead.
+    primary: Color(0xFF2563EB),
+    primarySoft: Color(0xFFEFF4FF),
+    secondary: Color(0xFF1D4ED8),
+    accent: Color(0xFF0EA5E9),
+    background: Color(0xFFF6F8FB),
     surface: Color(0xFFFFFFFF),
-    surfaceAlt: Color(0xFFF1F3F7),
-    foreground: Color(0xFF1A1D26),
-    muted: Color(0xFF6B7280),
-    faint: Color(0xFFA1A7B3),
-    border: Color(0xFFE4E7EC),
-    success: Color(0xFF16A34A),
-    warning: Color(0xFFD97706),
+    surfaceAlt: Color(0xFFF0F3F8),
+    foreground: Color(0xFF111827),
+    muted: Color(0xFF667085),
+    faint: Color(0xFF9CA5B4),
+    border: Color(0xFFE3E8EF),
+    success: Color(0xFF15803D),
+    warning: Color(0xFFC2410C),
     error: Color(0xFFDC2626),
-    overlay: Color(0x591A1D26),
+    overlay: Color(0x59111827),
   );
 
   @override

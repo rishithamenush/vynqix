@@ -35,6 +35,13 @@ void main() {
   }
 
   Future<void> pumpApp(WidgetTester tester, ProviderContainer container) async {
+    // flutter_test defaults to an 800x600 surface, which is wide enough to
+    // trigger the tablet rail. Pin a phone size so these cover the compact
+    // layout; the rail has its own test below.
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
@@ -111,6 +118,38 @@ void main() {
     // Completing a task awards XP through RewardsUseCase.
     final profile = await container.read(profileRepositoryProvider).get();
     expect(profile.xp, greaterThan(0));
+  });
+
+  testWidgets('a tablet width swaps the bottom bar for a side rail', (
+    tester,
+  ) async {
+    final container = await makeContainer(tester);
+    await container.read(profileProvider.notifier).completeOnboarding();
+
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const VynqixApp(),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+
+    expect(find.byType(NavigationRail), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
+  });
+
+  testWidgets('a phone width keeps the bottom navigation bar', (tester) async {
+    final container = await makeContainer(tester);
+    await container.read(profileProvider.notifier).completeOnboarding();
+    await pumpApp(tester, container);
+
+    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(NavigationRail), findsNothing);
   });
 
   testWidgets('the app is pinned to the light theme', (tester) async {

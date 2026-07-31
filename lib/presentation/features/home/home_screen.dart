@@ -109,30 +109,30 @@ class HomeScreen extends ConsumerWidget {
                   if (open.isEmpty)
                     SliverPageBody(
                       sliver: SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: context.gutter,
-                          vertical: AppSpacing.xxl,
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.celebration_outlined,
-                              size: 18,
-                              color: colors.success,
-                            ),
-                            const SizedBox(width: AppSpacing.md),
-                            Expanded(
-                              child: Text(
-                                'All done for today.',
-                                style: AppTypography.body.copyWith(
-                                  color: colors.foreground,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: context.gutter,
+                            vertical: AppSpacing.xxl,
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.celebration_outlined,
+                                size: 18,
+                                color: colors.success,
+                              ),
+                              const SizedBox(width: AppSpacing.md),
+                              Expanded(
+                                child: Text(
+                                  'All done for today.',
+                                  style: AppTypography.body.copyWith(
+                                    color: colors.foreground,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
                       ),
                     )
                   else
@@ -141,21 +141,21 @@ class HomeScreen extends ConsumerWidget {
                   if (showDone) ...[
                     SliverPageBody(
                       sliver: SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          context.gutter,
-                          AppSpacing.xl,
-                          context.gutter,
-                          AppSpacing.sm,
-                        ),
-                        child: Text(
-                          'Completed · ${done.length}',
-                          style: AppTypography.caption.copyWith(
-                            color: colors.muted,
-                            fontWeight: FontWeight.w600,
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            context.gutter,
+                            AppSpacing.xl,
+                            context.gutter,
+                            AppSpacing.sm,
+                          ),
+                          child: Text(
+                            'Completed · ${done.length}',
+                            style: AppTypography.caption.copyWith(
+                              color: colors.muted,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                      ),
                       ),
                     ),
                     _TaskSliver(tasks: done),
@@ -171,8 +171,8 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-/// A run of task rows separated by hairline dividers, the standard to-do
-/// list treatment.
+/// A run of task cards. They carry their own edges and shadow, so they are
+/// spaced apart rather than divided by hairlines.
 class _TaskSliver extends ConsumerWidget {
   const _TaskSliver({required this.tasks});
 
@@ -180,23 +180,14 @@ class _TaskSliver extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colors = context.colors;
-
     return SliverPageBody(
       sliver: SliverPadding(
-      padding: EdgeInsets.symmetric(
-        horizontal: (context.gutter - AppSpacing.sm).clamp(0, 32),
-      ),
-      sliver: SliverList.separated(
-        itemCount: tasks.length,
-        separatorBuilder: (_, _) => Divider(
-          height: 1,
-          thickness: 1,
-          indent: AppSpacing.huge,
-          color: colors.border.withValues(alpha: 0.6),
+        padding: EdgeInsets.symmetric(horizontal: context.gutter),
+        sliver: SliverList.separated(
+          itemCount: tasks.length,
+          separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
+          itemBuilder: (context, i) => _TaskRow(task: tasks[i]),
         ),
-        itemBuilder: (context, i) => _TaskRow(task: tasks[i]),
-      ),
       ),
     );
   }
@@ -412,9 +403,7 @@ void showAchievementSnack(BuildContext context, AchievementDefinition def) {
             Icon(AppIcons.badge(def.iconKey), size: 18, color: Colors.white),
             const SizedBox(width: AppSpacing.md - 2),
             Expanded(
-              child: Text(
-                '${def.title} unlocked  ·  +${def.xpReward} XP',
-              ),
+              child: Text('${def.title} unlocked  ·  +${def.xpReward} XP'),
             ),
           ],
         ),

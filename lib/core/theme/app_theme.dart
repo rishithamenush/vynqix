@@ -14,26 +14,27 @@ abstract final class AppTheme {
   static ThemeData light() {
     const AppColors c = AppColors.light;
 
-    final scheme = ColorScheme.fromSeed(
-      seedColor: c.primary,
-      brightness: Brightness.light,
-    ).copyWith(
-      primary: c.primary,
-      onPrimary: Colors.white,
-      primaryContainer: c.primarySoft,
-      onPrimaryContainer: c.primary,
-      secondary: c.secondary,
-      onSecondary: Colors.white,
-      tertiary: c.accent,
-      surface: c.surface,
-      onSurface: c.foreground,
-      onSurfaceVariant: c.muted,
-      surfaceContainerHighest: c.surfaceAlt,
-      error: c.error,
-      onError: Colors.white,
-      outline: c.border,
-      outlineVariant: c.border,
-    );
+    final scheme =
+        ColorScheme.fromSeed(
+          seedColor: c.primary,
+          brightness: Brightness.light,
+        ).copyWith(
+          primary: c.primary,
+          onPrimary: Colors.white,
+          primaryContainer: c.primarySoft,
+          onPrimaryContainer: c.primary,
+          secondary: c.secondary,
+          onSecondary: Colors.white,
+          tertiary: c.accent,
+          surface: c.surface,
+          onSurface: c.foreground,
+          onSurfaceVariant: c.muted,
+          surfaceContainerHighest: c.surfaceAlt,
+          error: c.error,
+          onError: Colors.white,
+          outline: c.border,
+          outlineVariant: c.border,
+        );
 
     return ThemeData(
       useMaterial3: true,
@@ -77,11 +78,7 @@ abstract final class AppTheme {
         ),
       ),
 
-      dividerTheme: DividerThemeData(
-        color: c.border,
-        thickness: 1,
-        space: 1,
-      ),
+      dividerTheme: DividerThemeData(color: c.border, thickness: 1, space: 1),
 
       iconTheme: IconThemeData(color: c.muted, size: 22),
 
@@ -117,9 +114,7 @@ abstract final class AppTheme {
           minimumSize: const Size.fromHeight(50),
           elevation: 0,
           textStyle: AppTypography.subtitle,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
-          ),
+          shape: const StadiumBorder(),
         ),
       ),
 
@@ -129,9 +124,7 @@ abstract final class AppTheme {
           minimumSize: const Size.fromHeight(50),
           side: BorderSide(color: c.border),
           textStyle: AppTypography.subtitle,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
-          ),
+          shape: const StadiumBorder(),
         ),
       ),
 
@@ -139,6 +132,8 @@ abstract final class AppTheme {
         style: TextButton.styleFrom(
           foregroundColor: c.primary,
           textStyle: AppTypography.subtitle,
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          shape: const StadiumBorder(),
         ),
       ),
 
@@ -199,9 +194,7 @@ abstract final class AppTheme {
 
       snackBarTheme: SnackBarThemeData(
         backgroundColor: c.foreground,
-        contentTextStyle: AppTypography.bodySmall.copyWith(
-          color: Colors.white,
-        ),
+        contentTextStyle: AppTypography.bodySmall.copyWith(color: Colors.white),
         actionTextColor: c.primarySoft,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(

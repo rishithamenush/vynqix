@@ -262,9 +262,8 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
     if (_isEditing && !_loaded) {
       final async = ref.watch(taskByIdProvider(widget.taskId!));
       return async.when(
-        loading: () => const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        ),
+        loading: () =>
+            const Scaffold(body: Center(child: CircularProgressIndicator())),
         error: (e, _) => Scaffold(
           appBar: AppBar(),
           body: ErrorStateView(error: e),
@@ -301,343 +300,389 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
         if (!didPop) _handleClose();
       },
       child: Scaffold(
-      appBar: AppBar(
-        title: Text(_isEditing ? 'Edit task' : 'New task'),
-        leading: IconButton(
-          icon: const Icon(Icons.close_rounded),
-          tooltip: 'Close',
-          onPressed: _handleClose,
+        appBar: AppBar(
+          title: Text(_isEditing ? 'Edit task' : 'New task'),
+          leading: IconButton(
+            icon: const Icon(Icons.close_rounded),
+            tooltip: 'Close',
+            onPressed: _handleClose,
+          ),
+          actions: [
+            if (_isEditing)
+              IconButton(
+                icon: const Icon(Icons.delete_outline_rounded),
+                onPressed: _delete,
+                tooltip: 'Delete',
+              ),
+            const SizedBox(width: AppSpacing.xs),
+          ],
         ),
-        actions: [
-          if (_isEditing)
-            IconButton(
-              icon: const Icon(Icons.delete_outline_rounded),
-              onPressed: _delete,
-              tooltip: 'Delete',
-            ),
-          Padding(
-            padding: const EdgeInsets.only(right: AppSpacing.md),
-            child: TextButton(
-              onPressed: canSave
-                  ? _save
-                  : _saving
-                  ? null
-                  : () => context.showSnack('Give the task a title first.'),
-              child: Text(_saving ? 'Saving…' : 'Save'),
-            ),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: PageBody(
-          maxWidth: Breakpoints.readableContent,
-          applyGutter: false,
-          child: ListView(
-          keyboardDismissBehavior:
-              ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: EdgeInsets.fromLTRB(
-            context.gutter,
-            AppSpacing.sm,
-            context.gutter,
-            AppSpacing.huge,
-          ),
-          children: [
-            // Icon picker.
-            SizedBox(
-              height: 46,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: AppIcons.taskIcons.length,
-                separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
-                itemBuilder: (context, i) {
-                  final option = AppIcons.taskIcons[i];
-                  final selected = option.key == _iconKey;
-                  return Semantics(
-                    label: option.label,
-                    selected: selected,
-                    button: true,
-                    child: GestureDetector(
-                      onTap: () => setState(
-                        () => _iconKey = selected ? null : option.key,
-                      ),
-                      child: AnimatedContainer(
-                        duration: AppDurations.fast,
-                        width: 46,
-                        decoration: BoxDecoration(
-                          color: selected
-                              ? colors.primarySoft
-                              : colors.surfaceAlt,
-                          borderRadius: BorderRadius.circular(AppRadius.md),
-                          border: Border.all(
-                            color: selected ? colors.primary : colors.border,
-                            width: selected ? 1.5 : 1,
-                          ),
-                        ),
-                        child: Icon(
-                          option.icon,
-                          size: 21,
-                          color: selected ? colors.primary : colors.muted,
-                        ),
-                      ),
-                    ),
-                  );
-                },
+        body: SafeArea(
+          child: PageBody(
+            maxWidth: Breakpoints.readableContent,
+            applyGutter: false,
+            child: ListView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: EdgeInsets.fromLTRB(
+                context.gutter,
+                AppSpacing.sm,
+                context.gutter,
+                AppSpacing.huge,
               ),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-
-            TextField(
-              controller: _title,
-              // Deliberately not autofocused: the keyboard covering half the
-              // screen the moment the editor opens hides the icon picker and
-              // the schedule controls right below the title.
-              textCapitalization: TextCapitalization.sentences,
-              style: AppTypography.title.copyWith(color: colors.foreground),
-              decoration: const InputDecoration(
-                hintText: 'What needs doing?',
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                filled: false,
-                contentPadding: EdgeInsets.zero,
-              ),
-              onChanged: (_) => setState(() {}),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            TextField(
-              controller: _description,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                hintText: 'Add a short description',
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                filled: false,
-                contentPadding: EdgeInsets.zero,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xxl),
-
-            _FieldLabel('When'),
-            const SizedBox(height: AppSpacing.md),
-            AppCard(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.lg,
-                vertical: AppSpacing.xs,
-              ),
-              child: Column(
-                children: [
-                  _Row(
-                    icon: Icons.calendar_today_rounded,
-                    label: 'Date',
-                    value: DateX.relativeLabel(DateX.parseKey(_dayKey)),
-                    onTap: _pickDate,
+              children: [
+                // What the task is, on one card, so the page opens on the only
+                // field that is actually required.
+                AppCard(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                    vertical: AppSpacing.md,
                   ),
-                  Divider(color: colors.border, height: 1),
-                  _Row(
-                    icon: Icons.schedule_rounded,
-                    label: 'Start time',
-                    value: _startMinutes == null
-                        ? 'Unscheduled'
-                        : TimeOfDayX.format(
-                            _startMinutes!,
-                            use24h: settings.use24HourClock,
-                          ),
-                    onTap: _pickTime,
-                    onClear: _startMinutes == null
-                        ? null
-                        : () => setState(() => _startMinutes = null),
-                  ),
-                  Divider(color: colors.border, height: 1),
-                  _Row(
-                    icon: Icons.repeat_rounded,
-                    label: 'Repeat',
-                    value: _repeat.label,
-                    onTap: _pickRepeat,
-                  ),
-                  Divider(color: colors.border, height: 1),
-                  _Row(
-                    icon: Icons.notifications_none_rounded,
-                    label: 'Reminder',
-                    value: _reminder == null
-                        ? 'None'
-                        : '$_reminder min before',
-                    onTap: _startMinutes == null
-                        ? () => context.showSnack(
-                            'Set a start time before adding a reminder.',
-                          )
-                        : _pickReminder,
-                    onClear: _reminder == null
-                        ? null
-                        : () => setState(() => _reminder = null),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xxl),
-
-            _FieldLabel('How long'),
-            const SizedBox(height: AppSpacing.md),
-            SizedBox(
-              height: 40,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: AppConstants.taskDurations.length,
-                separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
-                itemBuilder: (context, i) {
-                  final minutes = AppConstants.taskDurations[i];
-                  final selected = minutes == _duration;
-                  return _Chip(
-                    label: DurationX.formatMinutes(minutes),
-                    selected: selected,
-                    onTap: () => setState(() => _duration = minutes),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xxl),
-
-            _FieldLabel('Category'),
-            const SizedBox(height: AppSpacing.md),
-            Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm,
-              children: TaskCategory.values.map((c) {
-                final selected = c == _category;
-                return _Chip(
-                  label: c.label,
-                  icon: c.icon,
-                  color: c.color,
-                  selected: selected,
-                  onTap: () => setState(() => _category = c),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: AppSpacing.xxl),
-
-            _FieldLabel('Priority'),
-            const SizedBox(height: AppSpacing.md),
-            SegmentedSelector<TaskPriority>(
-              values: TaskPriority.values,
-              selected: _priority,
-              labelOf: (p) => p.label,
-              colorOf: (p) => p.color,
-              iconOf: (p) => p.icon,
-              onChanged: (p) => setState(() => _priority = p),
-            ),
-            const SizedBox(height: AppSpacing.xxl),
-
-            _FieldLabel('Checklist'),
-            const SizedBox(height: AppSpacing.md),
-            AppCard(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md,
-                vertical: AppSpacing.sm,
-              ),
-              child: Column(
-                children: [
-                  for (final sub in _subtasks)
-                    Row(
-                      key: ValueKey(sub.id),
-                      children: [
-                        Checkbox(
-                          value: sub.isDone,
-                          onChanged: (v) => setState(() {
-                            _subtasks = _subtasks
-                                .map(
-                                  (s) => s.id == sub.id
-                                      ? s.copyWith(isDone: v ?? false)
-                                      : s,
-                                )
-                                .toList();
-                          }),
-                        ),
-                        Expanded(
-                          child: Text(
-                            sub.title,
-                            style: AppTypography.bodySmall.copyWith(
-                              color: sub.isDone
-                                  ? colors.muted
-                                  : colors.foreground,
-                              decoration: sub.isDone
-                                  ? TextDecoration.lineThrough
-                                  : null,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.close_rounded, size: 18),
-                          onPressed: () => setState(
-                            () => _subtasks = _subtasks
-                                .where((s) => s.id != sub.id)
-                                .toList(),
-                          ),
-                        ),
-                      ],
-                    ),
-                  Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: TextField(
-                          controller: _subtaskInput,
-                          textInputAction: TextInputAction.done,
-                          decoration: const InputDecoration(
-                            hintText: 'Add a step',
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            filled: false,
-                            isDense: true,
-                          ),
-                          onSubmitted: (_) => _addSubtask(),
+                      TextField(
+                        controller: _title,
+                        // Deliberately not autofocused: the keyboard covering half
+                        // the screen the moment the editor opens hides the
+                        // schedule controls right below the title.
+                        textCapitalization: TextCapitalization.sentences,
+                        style: AppTypography.title.copyWith(
+                          color: colors.foreground,
                         ),
+                        decoration: const InputDecoration(
+                          hintText: 'What needs doing?',
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          filled: false,
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: AppSpacing.sm,
+                          ),
+                        ),
+                        onChanged: (_) => setState(() {}),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.add_rounded),
-                        onPressed: _addSubtask,
+                      Divider(color: colors.border, height: 1),
+                      TextField(
+                        controller: _description,
+                        textCapitalization: TextCapitalization.sentences,
+                        decoration: const InputDecoration(
+                          hintText: 'Add a short description',
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          filled: false,
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: AppSpacing.md,
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xxl),
-
-            _FieldLabel('Tags'),
-            const SizedBox(height: AppSpacing.md),
-            TextField(
-              controller: _tags,
-              decoration: const InputDecoration(
-                hintText: 'comma, separated, tags',
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xxl),
-
-            _FieldLabel('Notes'),
-            const SizedBox(height: AppSpacing.md),
-            TextField(
-              controller: _notes,
-              maxLines: 4,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                hintText: 'Anything else worth remembering',
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xxl),
-
-            if (_isEditing && _original != null)
-              OutlinedButton.icon(
-                onPressed: () => context.pushReplacement(
-                  '${Routes.focus}?taskId=${_original!.id}',
                 ),
-                icon: const Icon(Icons.timer_outlined),
-                label: const Text('Start focus session'),
+                const SizedBox(height: AppSpacing.xxl),
+
+                _FieldLabel('Icon'),
+                const SizedBox(height: AppSpacing.md),
+                SizedBox(
+                  height: 46,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: AppIcons.taskIcons.length,
+                    separatorBuilder: (_, _) =>
+                        const SizedBox(width: AppSpacing.sm),
+                    itemBuilder: (context, i) {
+                      final option = AppIcons.taskIcons[i];
+                      final selected = option.key == _iconKey;
+                      return Semantics(
+                        label: option.label,
+                        selected: selected,
+                        button: true,
+                        child: GestureDetector(
+                          onTap: () => setState(
+                            () => _iconKey = selected ? null : option.key,
+                          ),
+                          child: AnimatedContainer(
+                            duration: AppDurations.fast,
+                            width: 46,
+                            decoration: BoxDecoration(
+                              color: selected
+                                  ? colors.primarySoft
+                                  : colors.surfaceAlt,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: selected
+                                    ? colors.primary
+                                    : colors.border,
+                                width: selected ? 1.5 : 1,
+                              ),
+                            ),
+                            child: Icon(
+                              option.icon,
+                              size: 21,
+                              color: selected ? colors.primary : colors.muted,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xxl),
+
+                _FieldLabel('When'),
+                const SizedBox(height: AppSpacing.md),
+                AppCard(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                    vertical: AppSpacing.xs,
+                  ),
+                  child: Column(
+                    children: [
+                      _Row(
+                        icon: Icons.calendar_today_rounded,
+                        label: 'Date',
+                        value: DateX.relativeLabel(DateX.parseKey(_dayKey)),
+                        onTap: _pickDate,
+                      ),
+                      Divider(color: colors.border, height: 1),
+                      _Row(
+                        icon: Icons.schedule_rounded,
+                        label: 'Start time',
+                        value: _startMinutes == null
+                            ? 'Unscheduled'
+                            : TimeOfDayX.format(
+                                _startMinutes!,
+                                use24h: settings.use24HourClock,
+                              ),
+                        onTap: _pickTime,
+                        onClear: _startMinutes == null
+                            ? null
+                            : () => setState(() => _startMinutes = null),
+                      ),
+                      Divider(color: colors.border, height: 1),
+                      _Row(
+                        icon: Icons.repeat_rounded,
+                        label: 'Repeat',
+                        value: _repeat.label,
+                        onTap: _pickRepeat,
+                      ),
+                      Divider(color: colors.border, height: 1),
+                      _Row(
+                        icon: Icons.notifications_none_rounded,
+                        label: 'Reminder',
+                        value: _reminder == null
+                            ? 'None'
+                            : '$_reminder min before',
+                        onTap: _startMinutes == null
+                            ? () => context.showSnack(
+                                'Set a start time before adding a reminder.',
+                              )
+                            : _pickReminder,
+                        onClear: _reminder == null
+                            ? null
+                            : () => setState(() => _reminder = null),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xxl),
+
+                _FieldLabel('How long'),
+                const SizedBox(height: AppSpacing.md),
+                SizedBox(
+                  height: 40,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: AppConstants.taskDurations.length,
+                    separatorBuilder: (_, _) =>
+                        const SizedBox(width: AppSpacing.sm),
+                    itemBuilder: (context, i) {
+                      final minutes = AppConstants.taskDurations[i];
+                      final selected = minutes == _duration;
+                      return _Chip(
+                        label: DurationX.formatMinutes(minutes),
+                        selected: selected,
+                        onTap: () => setState(() => _duration = minutes),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xxl),
+
+                _FieldLabel('Category'),
+                const SizedBox(height: AppSpacing.md),
+                Wrap(
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.sm,
+                  children: TaskCategory.values.map((c) {
+                    final selected = c == _category;
+                    return _Chip(
+                      label: c.label,
+                      icon: c.icon,
+                      color: c.color,
+                      selected: selected,
+                      onTap: () => setState(() => _category = c),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: AppSpacing.xxl),
+
+                _FieldLabel('Priority'),
+                const SizedBox(height: AppSpacing.md),
+                SegmentedSelector<TaskPriority>(
+                  values: TaskPriority.values,
+                  selected: _priority,
+                  labelOf: (p) => p.label,
+                  colorOf: (p) => p.color,
+                  iconOf: (p) => p.icon,
+                  onChanged: (p) => setState(() => _priority = p),
+                ),
+                const SizedBox(height: AppSpacing.xxl),
+
+                _FieldLabel('Checklist'),
+                const SizedBox(height: AppSpacing.md),
+                AppCard(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.sm,
+                  ),
+                  child: Column(
+                    children: [
+                      for (final sub in _subtasks)
+                        Row(
+                          key: ValueKey(sub.id),
+                          children: [
+                            Checkbox(
+                              value: sub.isDone,
+                              onChanged: (v) => setState(() {
+                                _subtasks = _subtasks
+                                    .map(
+                                      (s) => s.id == sub.id
+                                          ? s.copyWith(isDone: v ?? false)
+                                          : s,
+                                    )
+                                    .toList();
+                              }),
+                            ),
+                            Expanded(
+                              child: Text(
+                                sub.title,
+                                style: AppTypography.bodySmall.copyWith(
+                                  color: sub.isDone
+                                      ? colors.muted
+                                      : colors.foreground,
+                                  decoration: sub.isDone
+                                      ? TextDecoration.lineThrough
+                                      : null,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.close_rounded, size: 18),
+                              onPressed: () => setState(
+                                () => _subtasks = _subtasks
+                                    .where((s) => s.id != sub.id)
+                                    .toList(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      Row(
+                        children: [
+                          const SizedBox(width: AppSpacing.md),
+                          Expanded(
+                            child: TextField(
+                              controller: _subtaskInput,
+                              textInputAction: TextInputAction.done,
+                              decoration: const InputDecoration(
+                                hintText: 'Add a step',
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                filled: false,
+                                isDense: true,
+                              ),
+                              onSubmitted: (_) => _addSubtask(),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.add_rounded),
+                            onPressed: _addSubtask,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xxl),
+
+                _FieldLabel('Tags'),
+                const SizedBox(height: AppSpacing.md),
+                TextField(
+                  controller: _tags,
+                  decoration: const InputDecoration(
+                    hintText: 'comma, separated, tags',
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xxl),
+
+                _FieldLabel('Notes'),
+                const SizedBox(height: AppSpacing.md),
+                TextField(
+                  controller: _notes,
+                  maxLines: 4,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: const InputDecoration(
+                    hintText: 'Anything else worth remembering',
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xxl),
+
+                if (_isEditing && _original != null)
+                  OutlinedButton.icon(
+                    onPressed: () => context.pushReplacement(
+                      '${Routes.focus}?taskId=${_original!.id}',
+                    ),
+                    icon: const Icon(Icons.timer_outlined),
+                    label: const Text('Start focus session'),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        // The primary action lives here rather than as a small word in the app
+        // bar: it stays in reach on a long form and reads as the one thing to
+        // do next.
+        bottomNavigationBar: DecoratedBox(
+          decoration: BoxDecoration(
+            color: colors.surface,
+            border: Border(top: BorderSide(color: colors.border)),
+          ),
+          child: SafeArea(
+            child: PageBody(
+              maxWidth: Breakpoints.readableContent,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                child: FilledButton(
+                  onPressed: _saving
+                      ? null
+                      : canSave
+                      ? _save
+                      : () => context.showSnack('Give the task a title first.'),
+                  child: Text(
+                    _saving
+                        ? 'Saving…'
+                        : _isEditing
+                        ? 'Save changes'
+                        : 'Add task',
+                  ),
+                ),
               ),
-          ],
+            ),
+          ),
         ),
-        ),
-      ),
       ),
     );
   }
@@ -846,7 +891,7 @@ class _Chip extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: selected ? tint.withValues(alpha: 0.14) : colors.surfaceAlt,
-          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderRadius: BorderRadius.circular(AppRadius.pill),
           border: Border.all(
             color: selected ? tint : colors.border,
             width: selected ? 1.5 : 1,

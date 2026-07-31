@@ -24,7 +24,6 @@ class PlannerScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colors = context.colors;
     final selected = ref.watch(selectedDayProvider);
     final dayKey = selected.dayKey;
     final tasksAsync = ref.watch(tasksForDayProvider(dayKey));
@@ -84,7 +83,6 @@ class PlannerScreen extends ConsumerWidget {
           ),
         ],
       ),
-      backgroundColor: colors.background,
     );
   }
 

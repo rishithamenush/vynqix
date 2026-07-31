@@ -23,7 +23,9 @@ class AchievementsScreen extends ConsumerWidget {
     final profile = ref.watch(profileValueProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Achievements')),
+      appBar: AppBar(
+        title: const Text('Achievements'),
+      ),
       body: async.when(
         loading: () => const Padding(
           padding: EdgeInsets.all(AppSpacing.screen),
@@ -114,26 +116,26 @@ class _AchievementTile extends StatelessWidget {
     final unlocked = achievement.isUnlocked;
 
     return AppCard(
-      color: unlocked ? colors.accent.withValues(alpha: 0.06) : null,
-      borderColor: unlocked ? colors.accent.withValues(alpha: 0.3) : null,
+      color: unlocked ? colors.warning.withValues(alpha: 0.07) : null,
+      borderColor: unlocked ? colors.warning.withValues(alpha: 0.35) : null,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 48,
-            height: 48,
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
               color: unlocked
-                  ? colors.accent.withValues(alpha: 0.15)
+                  ? colors.warning.withValues(alpha: 0.16)
                   : colors.surfaceAlt,
               borderRadius: BorderRadius.circular(AppRadius.md),
             ),
             child: Center(
               child: Opacity(
-                opacity: unlocked ? 1 : 0.35,
+                opacity: unlocked ? 1 : 0.32,
                 child: Text(
                   def.emoji,
-                  style: const TextStyle(fontSize: 24),
+                  style: const TextStyle(fontSize: 25),
                 ),
               ),
             ),
@@ -157,7 +159,7 @@ class _AchievementTile extends StatelessWidget {
                       Icon(
                         Icons.verified_rounded,
                         size: 18,
-                        color: colors.accent,
+                        color: colors.warning,
                       )
                     else
                       AppBadge(
@@ -176,7 +178,10 @@ class _AchievementTile extends StatelessWidget {
                 if (unlocked)
                   Text(
                     'Unlocked ${DateFormat('d MMM y').format(achievement.unlockedAt!)}',
-                    style: AppTypography.caption.copyWith(color: colors.accent),
+                    style: AppTypography.caption.copyWith(
+                      color: colors.warning,
+                      fontWeight: FontWeight.w600,
+                    ),
                   )
                 else ...[
                   ProgressBar(

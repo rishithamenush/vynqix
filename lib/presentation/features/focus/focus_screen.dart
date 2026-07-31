@@ -54,9 +54,7 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
     final accent = isBreak ? colors.success : colors.primary;
 
     return Scaffold(
-      backgroundColor: colors.background,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.expand_more_rounded),
           onPressed: () => context.pop(),

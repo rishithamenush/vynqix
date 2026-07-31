@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../core/extensions/context_x.dart';
 import '../../core/theme/app_spacing.dart';
@@ -7,13 +8,12 @@ import '../../core/theme/token_styles.dart';
 import '../../core/utils/date_x.dart';
 import '../../domain/entities/task.dart';
 import '../../domain/enums/task_enums.dart';
-import 'app_card.dart';
-import 'common.dart';
 
 /// The app's primary list row.
 ///
-/// Renders every task state — pending, running, done, missed — from one
-/// widget so a task looks the same on Home, Planner, Calendar and History.
+/// Standard to-do layout: a round checkbox on the left, the title, and one
+/// quiet meta line underneath. Colour is used only where it carries meaning —
+/// the category dot and the priority flag — so a long list stays scannable.
 class TaskCard extends StatelessWidget {
   const TaskCard({
     super.key,
@@ -38,7 +38,7 @@ class TaskCard extends StatelessWidget {
 
   final bool dense;
 
-  /// Highlights the task that is happening right now.
+  /// Marks the task that is happening right now with a tinted background.
   final bool isCurrent;
 
   @override
@@ -46,218 +46,223 @@ class TaskCard extends StatelessWidget {
     final colors = context.colors;
     final isDone = task.isDone;
     final isMissed = task.status == TaskStatus.missed;
-    final accent = task.category.color;
 
-    return PressableCard(
-      onTap: onTap,
-      onLongPress: onLongPress,
-      padding: EdgeInsets.all(dense ? AppSpacing.md : AppSpacing.lg - 2),
-      color: isCurrent ? colors.primary.withValues(alpha: 0.06) : null,
-      borderColor: isCurrent ? colors.primary.withValues(alpha: 0.4) : null,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _Leading(task: task, onToggle: onToggle),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+    return Material(
+      color: isCurrent
+          ? colors.primary.withValues(alpha: 0.06)
+          : colors.surface,
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      child: InkWell(
+        onTap: onTap,
+        onLongPress: onLongPress == null
+            ? null
+            : () {
+                HapticFeedback.mediumImpact();
+                onLongPress!();
+              },
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg - 2,
+            vertical: dense ? AppSpacing.md - 2 : AppSpacing.md + 2,
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _Checkbox(
+                isDone: isDone,
+                color: task.priority == TaskPriority.high
+                    ? task.priority.color
+                    : colors.muted,
+                onTap: onToggle,
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Text(
-                        task.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTypography.body.copyWith(
-                          color: isDone ? colors.muted : colors.foreground,
-                          fontWeight: FontWeight.w600,
-                          decoration: isDone
-                              ? TextDecoration.lineThrough
-                              : null,
-                          decorationColor: colors.muted,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            task.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTypography.body.copyWith(
+                              color: isDone
+                                  ? colors.muted
+                                  : colors.foreground,
+                              decoration: isDone
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                              decorationColor: colors.muted,
+                            ),
+                          ),
                         ),
-                      ),
+                        if (task.priority == TaskPriority.high && !isDone)
+                          Padding(
+                            padding: const EdgeInsets.only(left: AppSpacing.sm),
+                            child: Icon(
+                              Icons.flag_rounded,
+                              size: 15,
+                              color: task.priority.color,
+                            ),
+                          ),
+                      ],
                     ),
-                    if (task.priority == TaskPriority.high && !isDone) ...[
-                      const SizedBox(width: AppSpacing.sm),
-                      Icon(
-                        task.priority.icon,
-                        size: 16,
-                        color: task.priority.color,
+                    if (!isDone) ...[
+                      const SizedBox(height: AppSpacing.xs),
+                      _MetaLine(
+                        task: task,
+                        use24h: use24h,
+                        showDate: showDate,
+                        isMissed: isMissed,
+                        isCurrent: isCurrent,
                       ),
                     ],
                   ],
                 ),
-                if (task.description.isNotEmpty && !dense) ...[
-                  const SizedBox(height: AppSpacing.xxs),
-                  Text(
-                    task.description,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTypography.bodySmall.copyWith(
-                      color: colors.muted,
-                    ),
-                  ),
-                ],
-                const SizedBox(height: AppSpacing.sm),
-                Wrap(
-                  spacing: AppSpacing.sm,
-                  runSpacing: AppSpacing.xs,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    if (task.isScheduled)
-                      _MetaChip(
-                        icon: Icons.schedule_rounded,
-                        label:
-                            '${TimeOfDayX.format(task.startMinutes!, use24h: use24h)}'
-                            ' · ${DurationX.formatMinutes(task.durationMinutes)}',
-                        color: isCurrent ? colors.primary : colors.muted,
-                      )
-                    else
-                      _MetaChip(
-                        icon: Icons.inbox_rounded,
-                        label: DurationX.formatMinutes(task.durationMinutes),
-                        color: colors.muted,
-                      ),
-                    if (showDate)
-                      _MetaChip(
-                        icon: Icons.calendar_today_rounded,
-                        label: DateX.relativeLabel(
-                          DateX.parseKey(task.dayKey),
-                        ),
-                        color: colors.muted,
-                      ),
-                    if (task.hasSubtasks)
-                      _MetaChip(
-                        icon: Icons.checklist_rounded,
-                        label:
-                            '${task.completedSubtaskCount}/${task.subtasks.length}',
-                        color: colors.muted,
-                      ),
-                    if (task.repeat.repeats)
-                      _MetaChip(
-                        icon: Icons.repeat_rounded,
-                        label: task.repeat.label,
-                        color: colors.muted,
-                      ),
-                    AppBadge(
-                      label: task.category.label,
-                      color: accent,
-                      compact: true,
-                    ),
-                    if (isMissed)
-                      AppBadge(
-                        label: 'Missed',
-                        color: colors.error,
-                        compact: true,
-                      ),
-                    if (task.status == TaskStatus.inProgress)
-                      AppBadge(
-                        label: 'In progress',
-                        color: colors.primary,
-                        compact: true,
-                        filled: true,
-                      ),
-                  ],
-                ),
-                if (task.hasSubtasks && !isDone && !dense) ...[
-                  const SizedBox(height: AppSpacing.md - 2),
-                  ProgressBarInline(progress: task.subtaskProgress, color: accent),
-                ],
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class _Leading extends StatelessWidget {
-  const _Leading({required this.task, this.onToggle});
+/// The single line of secondary information under a task title.
+///
+/// Kept to one line on purpose: multiple wrapped rows of chips is what made
+/// the previous design feel heavy.
+class _MetaLine extends StatelessWidget {
+  const _MetaLine({
+    required this.task,
+    required this.use24h,
+    required this.showDate,
+    required this.isMissed,
+    required this.isCurrent,
+  });
 
   final Task task;
-  final VoidCallback? onToggle;
+  final bool use24h;
+  final bool showDate;
+  final bool isMissed;
+  final bool isCurrent;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final isDone = task.isDone;
-    final accent = task.category.color;
+    final parts = <String>[];
 
-    return GestureDetector(
-      onTap: onToggle,
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: AppDurations.medium,
-        width: 42,
-        height: 42,
-        decoration: BoxDecoration(
-          color: isDone
-              ? colors.success.withValues(alpha: 0.15)
-              : accent.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(
-            color: isDone
-                ? colors.success.withValues(alpha: 0.5)
-                : Colors.transparent,
+    if (showDate) {
+      parts.add(DateX.relativeLabel(DateX.parseKey(task.dayKey)));
+    }
+    if (task.isScheduled) {
+      parts.add(TimeOfDayX.format(task.startMinutes!, use24h: use24h));
+    }
+    parts.add(DurationX.formatMinutes(task.durationMinutes));
+    if (task.hasSubtasks) {
+      parts.add('${task.completedSubtaskCount}/${task.subtasks.length}');
+    }
+
+    final timeColor = isMissed
+        ? colors.error
+        : isCurrent
+        ? colors.primary
+        : colors.muted;
+
+    return Row(
+      children: [
+        if (task.repeat.repeats) ...[
+          Icon(Icons.repeat_rounded, size: 12, color: colors.muted),
+          const SizedBox(width: AppSpacing.xs),
+        ],
+        Flexible(
+          child: Text(
+            parts.join(' · '),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTypography.caption.copyWith(
+              color: timeColor,
+              fontWeight: isMissed || isCurrent
+                  ? FontWeight.w600
+                  : FontWeight.w400,
+            ),
           ),
         ),
-        child: Center(
-          child: isDone
-              ? Icon(Icons.check_rounded, size: 22, color: colors.success)
-              : task.emoji != null
-              ? Text(task.emoji!, style: const TextStyle(fontSize: 20))
-              : Icon(task.category.icon, size: 20, color: accent),
+        const SizedBox(width: AppSpacing.sm),
+        Container(
+          width: 6,
+          height: 6,
+          decoration: BoxDecoration(
+            color: task.category.color,
+            shape: BoxShape.circle,
+          ),
         ),
-      ),
-    );
-  }
-}
-
-class _MetaChip extends StatelessWidget {
-  const _MetaChip({required this.icon, required this.label, this.color});
-
-  final IconData icon;
-  final String label;
-  final Color? color;
-
-  @override
-  Widget build(BuildContext context) {
-    final tint = color ?? context.colors.muted;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 12, color: tint),
-        const SizedBox(width: AppSpacing.xs),
+        const SizedBox(width: AppSpacing.xs + 1),
         Text(
-          label,
-          style: AppTypography.caption.copyWith(color: tint),
+          task.category.label,
+          style: AppTypography.caption.copyWith(color: colors.muted),
         ),
+        if (isMissed) ...[
+          const SizedBox(width: AppSpacing.sm),
+          Text(
+            'Overdue',
+            style: AppTypography.caption.copyWith(
+              color: colors.error,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ],
     );
   }
 }
 
-/// Thin subtask progress bar embedded in a task row.
-class ProgressBarInline extends StatelessWidget {
-  const ProgressBarInline({super.key, required this.progress, this.color});
+/// Round checkbox, the visual anchor of every row.
+class _Checkbox extends StatelessWidget {
+  const _Checkbox({
+    required this.isDone,
+    required this.color,
+    required this.onTap,
+  });
 
-  final double progress;
-  final Color? color;
+  final bool isDone;
+  final Color color;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(3),
-      child: LinearProgressIndicator(
-        value: progress.clamp(0, 1),
-        minHeight: 4,
-        backgroundColor: colors.surfaceAlt,
-        valueColor: AlwaysStoppedAnimation(color ?? colors.primary),
+
+    return GestureDetector(
+      onTap: onTap == null
+          ? null
+          : () {
+              HapticFeedback.selectionClick();
+              onTap!();
+            },
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        // Expands the tap target without moving the visual circle.
+        padding: const EdgeInsets.only(top: 1, right: 2, bottom: 4),
+        child: AnimatedContainer(
+          duration: AppDurations.fast,
+          width: 22,
+          height: 22,
+          decoration: BoxDecoration(
+            color: isDone ? colors.primary : Colors.transparent,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: isDone ? colors.primary : color,
+              width: 1.8,
+            ),
+          ),
+          child: isDone
+              ? const Icon(Icons.check_rounded, size: 15, color: Colors.white)
+              : null,
+        ),
       ),
     );
   }
@@ -281,15 +286,18 @@ class DismissibleTask extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+
     return Dismissible(
       key: ValueKey('dismiss-${task.id}'),
-      background: _swipeBackground(
+      background: _background(
+        context,
         colors.success,
         Icons.check_rounded,
         task.isDone ? 'Reopen' : 'Complete',
         Alignment.centerLeft,
       ),
-      secondaryBackground: _swipeBackground(
+      secondaryBackground: _background(
+        context,
         colors.error,
         Icons.delete_outline_rounded,
         'Delete',
@@ -306,7 +314,8 @@ class DismissibleTask extends StatelessWidget {
     );
   }
 
-  Widget _swipeBackground(
+  Widget _background(
+    BuildContext context,
     Color color,
     IconData icon,
     String label,
@@ -316,18 +325,18 @@ class DismissibleTask extends StatelessWidget {
       alignment: alignment,
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(AppRadius.lg),
+        color: color,
+        borderRadius: BorderRadius.circular(AppRadius.md),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: color, size: 20),
+          Icon(icon, color: Colors.white, size: 19),
           const SizedBox(width: AppSpacing.sm),
           Text(
             label,
             style: AppTypography.bodySmall.copyWith(
-              color: color,
+              color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
           ),

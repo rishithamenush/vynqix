@@ -29,12 +29,14 @@ class ProfileScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        titleSpacing: AppSpacing.screen,
         title: const Text('You'),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined),
             onPressed: () => context.push(Routes.settings),
           ),
+          const SizedBox(width: AppSpacing.xs),
         ],
       ),
       body: ListView(
@@ -45,31 +47,24 @@ class ProfileScreen extends ConsumerWidget {
           120,
         ),
         children: [
+          // Identity row: avatar, name, level and XP progress.
           AppCard(
-            padding: const EdgeInsets.all(AppSpacing.xl),
+            padding: const EdgeInsets.all(AppSpacing.lg),
             child: Column(
               children: [
                 Row(
                   children: [
                     Container(
-                      width: 64,
-                      height: 64,
+                      width: 56,
+                      height: 56,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            colors.primary.withValues(alpha: 0.2),
-                            colors.accent.withValues(alpha: 0.2),
-                          ],
-                        ),
+                        color: colors.primary.withValues(alpha: 0.12),
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: colors.primary.withValues(alpha: 0.3),
-                        ),
                       ),
                       child: Center(
                         child: Text(
                           profile.avatarEmoji,
-                          style: const TextStyle(fontSize: 30),
+                          style: const TextStyle(fontSize: 26),
                         ),
                       ),
                     ),
@@ -79,8 +74,10 @@ class ProfileScreen extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            profile.name.isEmpty ? 'Your profile' : profile.name,
-                            style: AppTypography.title.copyWith(
+                            profile.name.isEmpty
+                                ? 'Your profile'
+                                : profile.name,
+                            style: AppTypography.subtitle.copyWith(
                               color: colors.foreground,
                             ),
                           ),
@@ -93,38 +90,27 @@ class ProfileScreen extends ConsumerWidget {
                               ),
                             ),
                           ],
-                          const SizedBox(height: AppSpacing.sm),
-                          Row(
-                            children: [
-                              AppBadge(
-                                label: 'Level ${profile.level}',
-                                color: colors.accent,
-                                filled: true,
-                              ),
-                              const SizedBox(width: AppSpacing.sm),
-                              AppBadge(
-                                label: '${profile.xp} XP',
-                                color: colors.primary,
-                              ),
-                            ],
-                          ),
                         ],
                       ),
                     ),
+                    AppBadge(
+                      label: 'Level ${profile.level}',
+                      color: colors.primary,
+                    ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.lg),
                 Row(
                   children: [
                     Text(
-                      'Level ${profile.level}',
+                      '${profile.xpIntoLevel} / ${profile.xpForNextLevel} XP',
                       style: AppTypography.caption.copyWith(
                         color: colors.muted,
                       ),
                     ),
                     const Spacer(),
                     Text(
-                      '${profile.xpIntoLevel} / ${profile.xpForNextLevel} XP',
+                      '${profile.xp} total',
                       style: AppTypography.caption.copyWith(
                         color: colors.muted,
                       ),
@@ -132,7 +118,7 @@ class ProfileScreen extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                ProgressBar(progress: profile.levelProgress),
+                ProgressBar(progress: profile.levelProgress, height: 6),
               ],
             ),
           ),

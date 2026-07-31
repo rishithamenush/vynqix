@@ -18,7 +18,8 @@ class ProgressRing extends StatelessWidget {
     this.color,
     this.trackColor,
     this.center,
-    this.gradient = true,
+    this.gradient = false,
+    this.glow = false,
   });
 
   /// 0–1.
@@ -31,6 +32,10 @@ class ProgressRing extends StatelessWidget {
 
   /// Sweeps primary → accent instead of a flat colour.
   final bool gradient;
+
+  /// Adds a coloured bloom behind the arc. Use on hero rings only — it is an
+  /// extra blurred paint pass per frame.
+  final bool glow;
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +55,7 @@ class ProgressRing extends StatelessWidget {
               color: color ?? colors.primary,
               endColor: gradient ? colors.accent : (color ?? colors.primary),
               trackColor: trackColor ?? colors.surfaceAlt,
+              glow: glow,
             ),
             child: center == null
                 ? null
@@ -73,6 +79,7 @@ class _RingPainter extends CustomPainter {
     required this.color,
     required this.endColor,
     required this.trackColor,
+    this.glow = false,
   });
 
   final double progress;
@@ -80,6 +87,7 @@ class _RingPainter extends CustomPainter {
   final Color color;
   final Color endColor;
   final Color trackColor;
+  final bool glow;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -98,17 +106,36 @@ class _RingPainter extends CustomPainter {
 
     if (progress <= 0) return;
 
+    final sweep = 2 * math.pi * progress;
+    final shader = SweepGradient(
+      startAngle: -math.pi / 2,
+      endAngle: 3 * math.pi / 2,
+      colors: [color, endColor],
+    ).createShader(rect);
+
+    // Blurred pass underneath makes the arc read as emitting light.
+    if (glow) {
+      canvas.drawArc(
+        rect,
+        -math.pi / 2,
+        sweep,
+        false,
+        Paint()
+          ..shader = shader
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round
+          ..strokeWidth = strokeWidth
+          ..maskFilter = MaskFilter.blur(BlurStyle.normal, strokeWidth * 0.7),
+      );
+    }
+
     canvas.drawArc(
       rect,
       -math.pi / 2,
-      2 * math.pi * progress,
+      sweep,
       false,
       Paint()
-        ..shader = SweepGradient(
-          startAngle: -math.pi / 2,
-          endAngle: 3 * math.pi / 2,
-          colors: [color, endColor],
-        ).createShader(rect)
+        ..shader = shader
         ..style = PaintingStyle.stroke
         ..strokeCap = StrokeCap.round
         ..strokeWidth = strokeWidth,
@@ -119,7 +146,8 @@ class _RingPainter extends CustomPainter {
   bool shouldRepaint(_RingPainter old) =>
       old.progress != progress ||
       old.color != color ||
-      old.trackColor != trackColor;
+      old.trackColor != trackColor ||
+      old.glow != glow;
 }
 
 /// Slim horizontal progress bar used inside cards and list rows.

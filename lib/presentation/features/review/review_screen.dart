@@ -113,6 +113,8 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
           ),
           body: SafeArea(
             child: ListView(
+              keyboardDismissBehavior:
+                  ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.fromLTRB(
                 AppSpacing.screen,
                 AppSpacing.sm,

@@ -8,7 +8,6 @@ import '../../../core/extensions/context_x.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_x.dart';
-import '../../../domain/enums/task_enums.dart';
 import '../../providers/app_providers.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/common.dart';
@@ -38,21 +37,6 @@ class SettingsScreen extends ConsumerWidget {
           _Group(
             title: 'Appearance',
             children: [
-              Padding(
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                child: SegmentedSelector<ThemeModeOption>(
-                  values: ThemeModeOption.values,
-                  selected: settings.themeMode,
-                  labelOf: (t) => t.label,
-                  iconOf: (t) => switch (t) {
-                    ThemeModeOption.system => Icons.brightness_auto_rounded,
-                    ThemeModeOption.light => Icons.light_mode_rounded,
-                    ThemeModeOption.dark => Icons.dark_mode_rounded,
-                  },
-                  onChanged: (t) =>
-                      notifier.edit((s) => s.copyWith(themeMode: t)),
-                ),
-              ),
               _SwitchRow(
                 icon: Icons.schedule_rounded,
                 label: '24-hour clock',

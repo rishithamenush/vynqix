@@ -102,6 +102,7 @@ class _SearchResults extends ConsumerWidget {
           );
         }
         return ListView.separated(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.screen,
             0,

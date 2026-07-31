@@ -1,5 +1,4 @@
 import '../../domain/entities/app_settings.dart';
-import '../../domain/enums/task_enums.dart';
 import '../../domain/repositories/repositories.dart';
 import '../local/app_database.dart';
 import '../local/key_value_dao.dart';
@@ -37,7 +36,6 @@ class SettingsRepositoryImpl
   }
 
   static Map<String, dynamic> _toJson(AppSettings s) => {
-    'themeMode': s.themeMode.id,
     'use24HourClock': s.use24HourClock,
     'notificationsEnabled': s.notificationsEnabled,
     'dailyPlanReminderMinutes': s.dailyPlanReminderMinutes,
@@ -56,7 +54,6 @@ class SettingsRepositoryImpl
   static AppSettings _fromJson(Map<String, dynamic> j) {
     const d = AppSettings();
     return AppSettings(
-      themeMode: ThemeModeOption.fromId(j['themeMode'] as String?),
       use24HourClock: j['use24HourClock'] as bool? ?? d.use24HourClock,
       notificationsEnabled:
           j['notificationsEnabled'] as bool? ?? d.notificationsEnabled,

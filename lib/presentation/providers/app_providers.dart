@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/local/app_database.dart';
@@ -11,7 +10,6 @@ import '../../data/repositories/settings_repository_impl.dart';
 import '../../data/repositories/task_repository_impl.dart';
 import '../../domain/entities/app_settings.dart';
 import '../../domain/entities/user_profile.dart';
-import '../../domain/enums/task_enums.dart';
 import '../../domain/repositories/repositories.dart';
 
 /// Root of the dependency graph.
@@ -97,14 +95,6 @@ final settingsProvider = AsyncNotifierProvider<SettingsNotifier, AppSettings>(
 final settingsValueProvider = Provider<AppSettings>(
   (ref) => ref.watch(settingsProvider).valueOrNull ?? const AppSettings(),
 );
-
-final themeModeProvider = Provider<ThemeMode>((ref) {
-  return switch (ref.watch(settingsValueProvider).themeMode) {
-    ThemeModeOption.system => ThemeMode.system,
-    ThemeModeOption.light => ThemeMode.light,
-    ThemeModeOption.dark => ThemeMode.dark,
-  };
-});
 
 // ---------------------------------------------------------------------------
 // Profile

@@ -210,6 +210,8 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
       ),
       body: SafeArea(
         child: ListView(
+          keyboardDismissBehavior:
+              ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.screen,
             AppSpacing.sm,

@@ -144,18 +144,3 @@ enum FocusSessionType {
   static FocusSessionType fromId(String? id) =>
       values.firstWhere((e) => e.id == id, orElse: () => focus);
 }
-
-/// Theme preference stored in settings.
-enum ThemeModeOption {
-  system('system', 'System'),
-  light('light', 'Light'),
-  dark('dark', 'Dark');
-
-  const ThemeModeOption(this.id, this.label);
-
-  final String id;
-  final String label;
-
-  static ThemeModeOption fromId(String? id) =>
-      values.firstWhere((e) => e.id == id, orElse: () => system);
-}

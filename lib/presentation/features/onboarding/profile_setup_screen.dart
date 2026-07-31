@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
 import '../../../core/extensions/context_x.dart';
+import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../providers/app_providers.dart';
@@ -20,7 +21,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
   final _name = TextEditingController();
   final _goal = TextEditingController();
   String _occupation = 'Professional';
-  String _avatar = '🙂';
+  String _avatar = 'person';
 
   static const _occupations = [
     'Student',
@@ -30,8 +31,6 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     'Parent',
     'Other',
   ];
-
-  static const _avatars = ['🙂', '😎', '🚀', '🧠', '🌱', '🔥', '⭐', '🦊'];
 
   @override
   void dispose() {
@@ -48,7 +47,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
             name: _name.text.trim(),
             occupation: _occupation,
             goal: _goal.text.trim(),
-            avatarEmoji: _avatar,
+            avatarIconKey: _avatar,
           ),
         );
     if (mounted) context.push(Routes.onboardingLifestyle);
@@ -62,6 +61,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
       appBar: AppBar(title: const Text('About you')),
       body: SafeArea(
         child: ListView(
+          keyboardDismissBehavior:
+              ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           children: [
             const _StepIndicator(step: 1),
@@ -85,28 +86,32 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
             Wrap(
               spacing: AppSpacing.md,
               runSpacing: AppSpacing.md,
-              children: _avatars.map((emoji) {
-                final selected = emoji == _avatar;
-                return GestureDetector(
-                  onTap: () => setState(() => _avatar = emoji),
-                  child: AnimatedContainer(
-                    duration: AppDurations.fast,
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: selected
-                          ? colors.primary.withValues(alpha: 0.14)
-                          : colors.surfaceAlt,
-                      borderRadius: BorderRadius.circular(AppRadius.md),
-                      border: Border.all(
-                        color: selected ? colors.primary : colors.border,
-                        width: selected ? 1.5 : 1,
+              children: AppIcons.avatarIcons.map((option) {
+                final selected = option.key == _avatar;
+                return Semantics(
+                  label: option.label,
+                  selected: selected,
+                  button: true,
+                  child: GestureDetector(
+                    onTap: () => setState(() => _avatar = option.key),
+                    child: AnimatedContainer(
+                      duration: AppDurations.fast,
+                      width: 52,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: selected
+                            ? colors.primarySoft
+                            : colors.surfaceAlt,
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                        border: Border.all(
+                          color: selected ? colors.primary : colors.border,
+                          width: selected ? 1.5 : 1,
+                        ),
                       ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        emoji,
-                        style: const TextStyle(fontSize: 24),
+                      child: Icon(
+                        option.icon,
+                        size: 24,
+                        color: selected ? colors.primary : colors.muted,
                       ),
                     ),
                   ),

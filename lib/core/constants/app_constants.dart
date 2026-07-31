@@ -5,7 +5,7 @@ abstract final class AppConstants {
   static const tagline = 'Plan tomorrow. Master today.';
 
   static const databaseName = 'vynqix.db';
-  static const databaseVersion = 1;
+  static const databaseVersion = 2;
 
   /// Selectable focus-block lengths, in minutes.
   static const focusDurations = <int>[15, 25, 30, 45, 60, 90];
@@ -18,11 +18,6 @@ abstract final class AppConstants {
 
   /// Number of focus blocks before a long break is offered.
   static const pomodorosPerLongBreak = 4;
-
-  static const taskEmojis = <String>[
-    '📋', '💼', '📚', '🏋️', '🎯', '💡', '🔥', '⚡',
-    '🌟', '🎨', '🏠', '🍎', '💰', '🎵', '📝', '🚀',
-  ];
 
   static const quotes = <String>[
     'The secret of getting ahead is getting started.',

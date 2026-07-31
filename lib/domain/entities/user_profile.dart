@@ -9,7 +9,7 @@ class UserProfile {
     this.name = '',
     this.occupation = '',
     this.goal = '',
-    this.avatarEmoji = '🙂',
+    this.avatarIconKey = 'person',
     this.wakeMinutes = 7 * 60,
     this.sleepMinutes = 23 * 60,
     this.workStartMinutes = 9 * 60,
@@ -24,7 +24,8 @@ class UserProfile {
   final String name;
   final String occupation;
   final String goal;
-  final String avatarEmoji;
+  /// Key into `AppIcons.avatarIcons`.
+  final String avatarIconKey;
 
   /// Lifestyle rhythm, all in minutes since midnight.
   final int wakeMinutes;
@@ -68,7 +69,7 @@ class UserProfile {
     String? name,
     String? occupation,
     String? goal,
-    String? avatarEmoji,
+    String? avatarIconKey,
     int? wakeMinutes,
     int? sleepMinutes,
     int? workStartMinutes,
@@ -83,7 +84,7 @@ class UserProfile {
       name: name ?? this.name,
       occupation: occupation ?? this.occupation,
       goal: goal ?? this.goal,
-      avatarEmoji: avatarEmoji ?? this.avatarEmoji,
+      avatarIconKey: avatarIconKey ?? this.avatarIconKey,
       wakeMinutes: wakeMinutes ?? this.wakeMinutes,
       sleepMinutes: sleepMinutes ?? this.sleepMinutes,
       workStartMinutes: workStartMinutes ?? this.workStartMinutes,
@@ -103,7 +104,7 @@ class UserProfile {
           other.name == name &&
           other.occupation == occupation &&
           other.goal == goal &&
-          other.avatarEmoji == avatarEmoji &&
+          other.avatarIconKey == avatarIconKey &&
           other.wakeMinutes == wakeMinutes &&
           other.sleepMinutes == sleepMinutes &&
           other.workStartMinutes == workStartMinutes &&
@@ -118,7 +119,7 @@ class UserProfile {
     name,
     occupation,
     goal,
-    avatarEmoji,
+    avatarIconKey,
     wakeMinutes,
     sleepMinutes,
     workStartMinutes,

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
 import '../../../core/extensions/context_x.dart';
+import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_x.dart';
@@ -202,13 +203,11 @@ class _TaskRow extends ConsumerWidget {
       task: task,
       onComplete: () => _complete(context, controller, task),
       onDelete: () async {
-        final ok = await confirmDialog(
-          context,
-          title: 'Delete task?',
-          message: '“${task.title}” will be removed permanently.',
-        );
-        if (ok) await controller.delete(task);
-        return ok;
+        // Swiping is easy to do by accident, so this deletes immediately and
+        // offers an undo rather than interrupting with a confirm dialog.
+        final removed = await controller.delete(task);
+        if (context.mounted) _showUndoDelete(context, controller, removed);
+        return true;
       },
       child: TaskCard(
         task: task,
@@ -219,6 +218,30 @@ class _TaskRow extends ConsumerWidget {
         onLongPress: () => _showActions(context, ref, task),
       ),
     );
+  }
+
+  void _showUndoDelete(
+    BuildContext context,
+    TaskController controller,
+    List<Task> removed,
+  ) {
+    if (removed.isEmpty) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            removed.length == 1
+                ? 'Deleted “${removed.first.title}”'
+                : 'Deleted ${removed.length} tasks',
+          ),
+          duration: const Duration(seconds: 5),
+          action: SnackBarAction(
+            label: 'Undo',
+            onPressed: () => controller.restore(removed),
+          ),
+        ),
+      );
   }
 
   Future<void> _complete(
@@ -370,8 +393,16 @@ void showAchievementSnack(BuildContext context, AchievementDefinition def) {
     ..hideCurrentSnackBar()
     ..showSnackBar(
       SnackBar(
-        content: Text(
-          '${def.emoji}  ${def.title} unlocked  ·  +${def.xpReward} XP',
+        content: Row(
+          children: [
+            Icon(AppIcons.badge(def.iconKey), size: 18, color: Colors.white),
+            const SizedBox(width: AppSpacing.md - 2),
+            Expanded(
+              child: Text(
+                '${def.title} unlocked  ·  +${def.xpReward} XP',
+              ),
+            ),
+          ],
         ),
         action: SnackBarAction(
           label: 'View',

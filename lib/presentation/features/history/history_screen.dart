@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
 import '../../../core/extensions/context_x.dart';
+import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/theme/token_styles.dart';
 import '../../../core/utils/date_x.dart';
 import '../../providers/app_providers.dart';
 import '../../providers/review_providers.dart';
@@ -26,10 +30,26 @@ class HistoryScreen extends ConsumerStatefulWidget {
 class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   final _search = TextEditingController();
 
+  /// Debounce so a query runs once the user pauses, not once per keystroke.
+  Timer? _debounce;
+
   @override
   void dispose() {
+    _debounce?.cancel();
     _search.dispose();
     super.dispose();
+  }
+
+  void _onQueryChanged(String value) {
+    _debounce?.cancel();
+    // Clearing should feel instant; typing waits for a pause.
+    if (value.isEmpty) {
+      ref.read(taskSearchQueryProvider.notifier).state = '';
+      return;
+    }
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      if (mounted) ref.read(taskSearchQueryProvider.notifier).state = value;
+    });
   }
 
   @override
@@ -37,6 +57,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     final colors = context.colors;
     final query = ref.watch(taskSearchQueryProvider);
     final isSearching = query.trim().length >= 2;
+    final hasText = _search.text.isNotEmpty;
 
     return Scaffold(
       appBar: AppBar(title: const Text('History')),
@@ -54,18 +75,23 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               decoration: InputDecoration(
                 hintText: 'Search tasks, tags and notes',
                 prefixIcon: const Icon(Icons.search_rounded, size: 20),
-                suffixIcon: query.isEmpty
+                suffixIcon: !hasText
                     ? null
                     : IconButton(
                         icon: const Icon(Icons.close_rounded, size: 18),
                         onPressed: () {
                           _search.clear();
-                          ref.read(taskSearchQueryProvider.notifier).state = '';
+                          _onQueryChanged('');
+                          setState(() {});
                         },
                       ),
               ),
-              onChanged: (v) =>
-                  ref.read(taskSearchQueryProvider.notifier).state = v,
+              textInputAction: TextInputAction.search,
+              onChanged: (v) {
+                _onQueryChanged(v);
+                // Repaint so the clear button appears/disappears immediately.
+                setState(() {});
+              },
             ),
           ),
           Expanded(
@@ -102,6 +128,7 @@ class _SearchResults extends ConsumerWidget {
           );
         }
         return ListView.separated(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.screen,
             0,
@@ -187,9 +214,10 @@ class _DayHistory extends ConsumerWidget {
                         ),
                       ),
                       if (log?.mood != null)
-                        Text(
-                          log!.mood!.emoji,
-                          style: const TextStyle(fontSize: 20),
+                        Icon(
+                          AppIcons.mood(log!.mood!),
+                          size: 19,
+                          color: log.mood!.color,
                         ),
                       if (day.isPerfect) ...[
                         const SizedBox(width: AppSpacing.sm),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/extensions/context_x.dart';
+import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../domain/entities/stats.dart';
@@ -104,7 +105,18 @@ class _InsightCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text(insight.emoji, style: const TextStyle(fontSize: 22)),
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.sm),
+                decoration: BoxDecoration(
+                  color: tint.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                ),
+                child: Icon(
+                  AppIcons.insight(insight.iconKey),
+                  size: 18,
+                  color: tint,
+                ),
+              ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Text(

@@ -8,8 +8,6 @@ extension ContextX on BuildContext {
 
   TextTheme get text => Theme.of(this).textTheme;
 
-  bool get isDark => Theme.of(this).brightness == Brightness.dark;
-
   MediaQueryData get mq => MediaQuery.of(this);
 
   Size get screenSize => MediaQuery.sizeOf(this);

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/extensions/context_x.dart';
+import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/token_styles.dart';
@@ -50,7 +51,7 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
   int? _startMinutes;
   int _duration = 30;
   int? _reminder;
-  String? _emoji;
+  String? _iconKey;
   List<Subtask> _subtasks = [];
 
   bool get _isEditing => widget.taskId != null;
@@ -85,7 +86,7 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
     _startMinutes = task.startMinutes;
     _duration = task.durationMinutes;
     _reminder = task.reminderMinutesBefore;
-    _emoji = task.emoji;
+    _iconKey = task.iconKey;
     _subtasks = [...task.subtasks];
     _loaded = true;
   }
@@ -107,8 +108,8 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
       title: title,
       description: _description.text.trim(),
       notes: _notes.text.trim(),
-      emoji: _emoji,
-      clearEmoji: _emoji == null,
+      iconKey: _iconKey,
+      clearIcon: _iconKey == null,
       dayKey: _dayKey,
       category: _category,
       priority: _priority,
@@ -137,16 +138,121 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
   Future<void> _delete() async {
     final task = _original;
     if (task == null) return;
-    final ok = await confirmDialog(
-      context,
-      title: 'Delete task?',
-      message: task.repeat.repeats
-          ? 'This will delete this occurrence. Future repeats stay.'
-          : '“${task.title}” will be removed permanently.',
-    );
-    if (!ok) return;
-    await ref.read(taskControllerProvider).delete(task);
+
+    // A repeating task has two reasonable meanings for "delete". Asking is
+    // the only safe option — guessing either way loses data.
+    final _DeleteScope? scope;
+    if (task.repeat.repeats && task.seriesId != null) {
+      scope = await _askDeleteScope(task);
+    } else {
+      final confirmed = await confirmDialog(
+        context,
+        title: 'Delete task?',
+        message: '“${task.title}” will be removed permanently.',
+      );
+      scope = confirmed ? _DeleteScope.single : null;
+    }
+
+    if (scope == null || !mounted) return;
+
+    await ref
+        .read(taskControllerProvider)
+        .delete(task, wholeSeries: scope == _DeleteScope.series);
+
     if (mounted) context.pop();
+  }
+
+  Future<_DeleteScope?> _askDeleteScope(Task task) {
+    return showModalBottomSheet<_DeleteScope>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.xl,
+                AppSpacing.xl,
+                AppSpacing.xl,
+                AppSpacing.sm,
+              ),
+              child: Text(
+                'This task repeats',
+                style: AppTypography.subtitle.copyWith(
+                  color: context.colors.foreground,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.event_busy_rounded),
+              title: const Text('Delete this occurrence'),
+              subtitle: const Text('Future repeats stay'),
+              onTap: () => Navigator.pop(sheetContext, _DeleteScope.single),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.delete_sweep_rounded,
+                color: context.colors.error,
+              ),
+              title: Text(
+                'Delete this and all future',
+                style: TextStyle(color: context.colors.error),
+              ),
+              onTap: () => Navigator.pop(sheetContext, _DeleteScope.series),
+            ),
+            ListTile(
+              leading: const Icon(Icons.close_rounded),
+              title: const Text('Cancel'),
+              onTap: () => Navigator.pop(sheetContext),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Whether the form differs from what was loaded, so closing can warn
+  /// before throwing work away.
+  bool get _isDirty {
+    final task = _original;
+    if (task == null) {
+      return _title.text.trim().isNotEmpty ||
+          _description.text.trim().isNotEmpty ||
+          _notes.text.trim().isNotEmpty ||
+          _tags.text.trim().isNotEmpty ||
+          _subtasks.isNotEmpty ||
+          _iconKey != null ||
+          _startMinutes != null;
+    }
+    return _title.text.trim() != task.title ||
+        _description.text.trim() != task.description ||
+        _notes.text.trim() != task.notes ||
+        _tags.text.trim() != task.tags.join(', ') ||
+        _iconKey != task.iconKey ||
+        _dayKey != task.dayKey ||
+        _category != task.category ||
+        _priority != task.priority ||
+        _repeat != task.repeat ||
+        _startMinutes != task.startMinutes ||
+        _duration != task.durationMinutes ||
+        _reminder != task.reminderMinutesBefore ||
+        _subtasks.length != task.subtasks.length;
+  }
+
+  /// Confirms before discarding unsaved edits.
+  Future<void> _handleClose() async {
+    if (!_isDirty) {
+      context.pop();
+      return;
+    }
+    final discard = await confirmDialog(
+      context,
+      title: 'Discard changes?',
+      message: 'Your edits to this task have not been saved.',
+      confirmLabel: 'Discard',
+    );
+    if (discard && mounted) context.pop();
   }
 
   @override
@@ -185,12 +291,20 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
     final settings = ref.watch(settingsValueProvider);
     final canSave = _title.text.trim().isNotEmpty && !_saving;
 
-    return Scaffold(
+    return PopScope(
+      // Intercept the back gesture / hardware back so unsaved edits are not
+      // silently discarded.
+      canPop: !_isDirty,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _handleClose();
+      },
+      child: Scaffold(
       appBar: AppBar(
         title: Text(_isEditing ? 'Edit task' : 'New task'),
         leading: IconButton(
           icon: const Icon(Icons.close_rounded),
-          onPressed: () => context.pop(),
+          tooltip: 'Close',
+          onPressed: _handleClose,
         ),
         actions: [
           if (_isEditing)
@@ -202,7 +316,11 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
           Padding(
             padding: const EdgeInsets.only(right: AppSpacing.md),
             child: TextButton(
-              onPressed: canSave ? _save : null,
+              onPressed: canSave
+                  ? _save
+                  : _saving
+                  ? null
+                  : () => context.showSnack('Give the task a title first.'),
               child: Text(_saving ? 'Saving…' : 'Save'),
             ),
           ),
@@ -210,6 +328,8 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
       ),
       body: SafeArea(
         child: ListView(
+          keyboardDismissBehavior:
+              ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.screen,
             AppSpacing.sm,
@@ -217,36 +337,41 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
             AppSpacing.huge,
           ),
           children: [
-            // Emoji picker
+            // Icon picker.
             SizedBox(
-              height: 48,
+              height: 46,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                itemCount: AppConstants.taskEmojis.length,
+                itemCount: AppIcons.taskIcons.length,
                 separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
                 itemBuilder: (context, i) {
-                  final emoji = AppConstants.taskEmojis[i];
-                  final selected = emoji == _emoji;
-                  return GestureDetector(
-                    onTap: () => setState(
-                      () => _emoji = selected ? null : emoji,
-                    ),
-                    child: AnimatedContainer(
-                      duration: AppDurations.fast,
-                      width: 48,
-                      decoration: BoxDecoration(
-                        color: selected
-                            ? colors.primary.withValues(alpha: 0.14)
-                            : colors.surfaceAlt,
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                        border: Border.all(
-                          color: selected ? colors.primary : colors.border,
-                        ),
+                  final option = AppIcons.taskIcons[i];
+                  final selected = option.key == _iconKey;
+                  return Semantics(
+                    label: option.label,
+                    selected: selected,
+                    button: true,
+                    child: GestureDetector(
+                      onTap: () => setState(
+                        () => _iconKey = selected ? null : option.key,
                       ),
-                      child: Center(
-                        child: Text(
-                          emoji,
-                          style: const TextStyle(fontSize: 22),
+                      child: AnimatedContainer(
+                        duration: AppDurations.fast,
+                        width: 46,
+                        decoration: BoxDecoration(
+                          color: selected
+                              ? colors.primarySoft
+                              : colors.surfaceAlt,
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                          border: Border.all(
+                            color: selected ? colors.primary : colors.border,
+                            width: selected ? 1.5 : 1,
+                          ),
+                        ),
+                        child: Icon(
+                          option.icon,
+                          size: 21,
+                          color: selected ? colors.primary : colors.muted,
                         ),
                       ),
                     ),
@@ -330,7 +455,11 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
                     value: _reminder == null
                         ? 'None'
                         : '$_reminder min before',
-                    onTap: _startMinutes == null ? null : _pickReminder,
+                    onTap: _startMinutes == null
+                        ? () => context.showSnack(
+                            'Set a start time before adding a reminder.',
+                          )
+                        : _pickReminder,
                     onClear: _reminder == null
                         ? null
                         : () => setState(() => _reminder = null),
@@ -501,6 +630,7 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
           ],
         ),
       ),
+      ),
     );
   }
 
@@ -592,6 +722,9 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
     if (picked != null) setState(() => _reminder = picked);
   }
 }
+
+/// Which occurrences a delete applies to.
+enum _DeleteScope { single, series }
 
 class _FieldLabel extends StatelessWidget {
   const _FieldLabel(this.text);

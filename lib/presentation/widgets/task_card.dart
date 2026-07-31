@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/extensions/context_x.dart';
+import '../../core/theme/app_icons.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/theme/token_styles.dart';
@@ -62,9 +63,11 @@ class TaskCard extends StatelessWidget {
               },
         borderRadius: BorderRadius.circular(AppRadius.md),
         child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg - 2,
-            vertical: dense ? AppSpacing.md - 2 : AppSpacing.md + 2,
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.sm,
+            dense ? AppSpacing.xs : AppSpacing.sm,
+            AppSpacing.lg - 2,
+            dense ? AppSpacing.xs : AppSpacing.sm,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,10 +76,21 @@ class TaskCard extends StatelessWidget {
                 isDone: isDone,
                 color: task.priority == TaskPriority.high
                     ? task.priority.color
-                    : colors.muted,
+                    : colors.faint,
                 onTap: onToggle,
               ),
-              const SizedBox(width: AppSpacing.md),
+              const SizedBox(width: AppSpacing.xs),
+              if (!isDone) ...[
+                Padding(
+                  padding: const EdgeInsets.only(top: 1),
+                  child: Icon(
+                    AppIcons.taskIcon(task.iconKey) ?? task.category.icon,
+                    size: 18,
+                    color: task.category.color,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm + 2),
+              ],
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,24 +258,28 @@ class _Checkbox extends StatelessWidget {
               onTap!();
             },
       behavior: HitTestBehavior.opaque,
-      child: Padding(
-        // Expands the tap target without moving the visual circle.
-        padding: const EdgeInsets.only(top: 1, right: 2, bottom: 4),
-        child: AnimatedContainer(
-          duration: AppDurations.fast,
-          width: 22,
-          height: 22,
-          decoration: BoxDecoration(
-            color: isDone ? colors.primary : Colors.transparent,
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: isDone ? colors.primary : color,
-              width: 1.8,
+      child: SizedBox(
+        // A 22dp circle is far below the 44dp minimum touch target, so the
+        // visual stays small while the tappable area is padded out to 44.
+        width: 44,
+        height: 44,
+        child: Center(
+          child: AnimatedContainer(
+            duration: AppDurations.fast,
+            width: 22,
+            height: 22,
+            decoration: BoxDecoration(
+              color: isDone ? colors.primary : Colors.transparent,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isDone ? colors.primary : color,
+                width: 1.8,
+              ),
             ),
+            child: isDone
+                ? const Icon(Icons.check_rounded, size: 15, color: Colors.white)
+                : null,
           ),
-          child: isDone
-              ? const Icon(Icons.check_rounded, size: 15, color: Colors.white)
-              : null,
         ),
       ),
     );

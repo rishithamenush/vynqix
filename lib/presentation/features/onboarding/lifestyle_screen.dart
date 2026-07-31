@@ -50,6 +50,8 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> {
       appBar: AppBar(title: const Text('Your rhythm')),
       body: SafeArea(
         child: ListView(
+          keyboardDismissBehavior:
+              ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
           children: [
             Row(

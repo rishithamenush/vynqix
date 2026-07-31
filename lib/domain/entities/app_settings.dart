@@ -1,13 +1,10 @@
 import 'package:meta/meta.dart';
 
-import '../enums/task_enums.dart';
-
 /// User-tunable preferences. Persisted as a key/value row per field so
 /// adding a setting never requires a schema migration.
 @immutable
 class AppSettings {
   const AppSettings({
-    this.themeMode = ThemeModeOption.system,
     this.use24HourClock = false,
     this.notificationsEnabled = true,
     this.dailyPlanReminderMinutes = 20 * 60,
@@ -23,7 +20,6 @@ class AppSettings {
     this.rolloverUnfinished = true,
   });
 
-  final ThemeModeOption themeMode;
   final bool use24HourClock;
 
   final bool notificationsEnabled;
@@ -49,7 +45,6 @@ class AppSettings {
   final bool rolloverUnfinished;
 
   AppSettings copyWith({
-    ThemeModeOption? themeMode,
     bool? use24HourClock,
     bool? notificationsEnabled,
     int? dailyPlanReminderMinutes,
@@ -65,7 +60,6 @@ class AppSettings {
     bool? rolloverUnfinished,
   }) {
     return AppSettings(
-      themeMode: themeMode ?? this.themeMode,
       use24HourClock: use24HourClock ?? this.use24HourClock,
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
       dailyPlanReminderMinutes:
@@ -89,7 +83,6 @@ class AppSettings {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is AppSettings &&
-          other.themeMode == themeMode &&
           other.use24HourClock == use24HourClock &&
           other.notificationsEnabled == notificationsEnabled &&
           other.dailyPlanReminderMinutes == dailyPlanReminderMinutes &&
@@ -106,7 +99,6 @@ class AppSettings {
 
   @override
   int get hashCode => Object.hash(
-    themeMode,
     use24HourClock,
     notificationsEnabled,
     dailyPlanReminderMinutes,

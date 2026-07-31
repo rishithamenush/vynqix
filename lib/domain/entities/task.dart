@@ -16,7 +16,7 @@ class Task {
     required this.dayKey,
     this.description = '',
     this.notes = '',
-    this.emoji,
+    this.iconKey,
     this.category = TaskCategory.other,
     this.priority = TaskPriority.medium,
     this.status = TaskStatus.pending,
@@ -38,7 +38,8 @@ class Task {
   final String title;
   final String description;
   final String notes;
-  final String? emoji;
+  /// Key into `AppIcons.taskIcons`. Null means "use the category icon".
+  final String? iconKey;
 
   /// Scheduled day, as `yyyy-MM-dd`.
   final String dayKey;
@@ -119,8 +120,8 @@ class Task {
     String? title,
     String? description,
     String? notes,
-    String? emoji,
-    bool clearEmoji = false,
+    String? iconKey,
+    bool clearIcon = false,
     String? dayKey,
     TaskCategory? category,
     TaskPriority? priority,
@@ -145,7 +146,7 @@ class Task {
       title: title ?? this.title,
       description: description ?? this.description,
       notes: notes ?? this.notes,
-      emoji: clearEmoji ? null : (emoji ?? this.emoji),
+      iconKey: clearIcon ? null : (iconKey ?? this.iconKey),
       dayKey: dayKey ?? this.dayKey,
       category: category ?? this.category,
       priority: priority ?? this.priority,

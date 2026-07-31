@@ -84,17 +84,16 @@ enum RepeatRule {
 
 /// Self-reported mood captured in the daily review.
 enum Mood {
-  great('great', 'Great', '😄', 5),
-  good('good', 'Good', '🙂', 4),
-  okay('okay', 'Okay', '😐', 3),
-  bad('bad', 'Bad', '😔', 2),
-  terrible('terrible', 'Terrible', '😞', 1);
+  great('great', 'Great', 5),
+  good('good', 'Good', 4),
+  okay('okay', 'Okay', 3),
+  bad('bad', 'Bad', 2),
+  terrible('terrible', 'Terrible', 1);
 
-  const Mood(this.id, this.label, this.emoji, this.score);
+  const Mood(this.id, this.label, this.score);
 
   final String id;
   final String label;
-  final String emoji;
 
   /// 1–5, used for trend charts.
   final int score;
@@ -110,15 +109,14 @@ enum Mood {
 
 /// Self-reported energy captured in the daily review.
 enum EnergyLevel {
-  high('high', 'High energy', '⚡', 3),
-  medium('medium', 'Medium', '🔋', 2),
-  low('low', 'Low energy', '😴', 1);
+  high('high', 'High energy', 3),
+  medium('medium', 'Medium', 2),
+  low('low', 'Low energy', 1);
 
-  const EnergyLevel(this.id, this.label, this.emoji, this.score);
+  const EnergyLevel(this.id, this.label, this.score);
 
   final String id;
   final String label;
-  final String emoji;
   final int score;
 
   static EnergyLevel? fromId(String? id) {
@@ -143,19 +141,4 @@ enum FocusSessionType {
 
   static FocusSessionType fromId(String? id) =>
       values.firstWhere((e) => e.id == id, orElse: () => focus);
-}
-
-/// Theme preference stored in settings.
-enum ThemeModeOption {
-  system('system', 'System'),
-  light('light', 'Light'),
-  dark('dark', 'Dark');
-
-  const ThemeModeOption(this.id, this.label);
-
-  final String id;
-  final String label;
-
-  static ThemeModeOption fromId(String? id) =>
-      values.firstWhere((e) => e.id == id, orElse: () => system);
 }

@@ -65,12 +65,12 @@ void main() {
     await pumpApp(tester, container);
 
     // The bottom tab bar is present, so we are inside the shell.
-    expect(find.text('Home'), findsOneWidget);
+    expect(find.text('Tasks'), findsOneWidget);
     expect(find.text('Planner'), findsOneWidget);
     expect(find.text('Calendar'), findsOneWidget);
 
     // Empty state for a day with no tasks.
-    expect(find.text('Nothing scheduled today'), findsOneWidget);
+    expect(find.text('No tasks today'), findsOneWidget);
   });
 
   testWidgets('a saved task appears on the home list', (tester) async {
@@ -87,7 +87,7 @@ void main() {
     await pumpApp(tester, container);
 
     expect(find.text('Ship the build'), findsWidgets);
-    expect(find.text('Nothing scheduled today'), findsNothing);
+    expect(find.text('No tasks today'), findsNothing);
   });
 
   testWidgets('completing a task updates the day stats', (tester) async {
@@ -113,16 +113,16 @@ void main() {
     expect(profile.xp, greaterThan(0));
   });
 
-  testWidgets('the app supplies both light and dark themes', (tester) async {
+  testWidgets('the app is pinned to the light theme', (tester) async {
     final container = await makeContainer(tester);
     await container.read(profileProvider.notifier).completeOnboarding();
     await pumpApp(tester, container);
 
-    final app = tester.widget<MaterialApp>(
-      find.byType(MaterialApp).first,
-    );
-    expect(app.themeMode, ThemeMode.system);
+    final app = tester.widget<MaterialApp>(find.byType(MaterialApp).first);
+    expect(app.themeMode, ThemeMode.light);
     expect(app.theme, isNotNull);
-    expect(app.darkTheme, isNotNull);
+    // No dark theme is supplied, so the OS setting cannot flip the palette.
+    expect(app.darkTheme, isNull);
+    expect(app.theme!.brightness, Brightness.light);
   });
 }

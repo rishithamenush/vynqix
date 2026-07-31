@@ -24,7 +24,7 @@ abstract final class InsightsService {
               'Plan a few tasks and finish them. Once there is a week of '
               'history here, patterns in your focus, timing and energy start '
               'showing up on this screen.',
-          emoji: '🌱',
+          iconKey: 'seedling',
         ),
       ];
     }
@@ -40,7 +40,7 @@ abstract final class InsightsService {
               'You completed $rate% of your scheduled tasks. That is a '
               'realistic plan meeting real follow-through — the hardest '
               'combination to get right.',
-          emoji: '🎯',
+          iconKey: 'target',
           tone: InsightTone.positive,
         ),
       );
@@ -53,7 +53,7 @@ abstract final class InsightsService {
               'Only $rate% of planned tasks got done. You are not failing to '
               'execute — you are planning more than a day holds. Try cutting '
               'tomorrow’s list to your top three.',
-          emoji: '⚖️',
+          iconKey: 'balance',
           tone: InsightTone.warning,
         ),
       );
@@ -65,7 +65,7 @@ abstract final class InsightsService {
           body:
               'You completed $rate% of your planned tasks. Trimming one or '
               'two low-priority items per day would push this over 70%.',
-          emoji: '📈',
+          iconKey: 'trendUp',
         ),
       );
     }
@@ -81,7 +81,7 @@ abstract final class InsightsService {
               'More of your tasks get completed around this hour than any '
               'other. Protect it — schedule your hardest task here instead of '
               'meetings or admin.',
-          emoji: '⏰',
+          iconKey: 'clock',
           tone: InsightTone.positive,
         ),
       );
@@ -101,7 +101,7 @@ abstract final class InsightsService {
           body:
               '$share% of everything you completed was ${top.label.toLowerCase()}. '
               '${share > 60 ? 'That is a lot of weight in one area — check that the others are not quietly slipping.' : 'That looks like a healthy balance across your life areas.'}',
-          emoji: '🧭',
+          iconKey: 'compass',
           tone: share > 60 ? InsightTone.warning : InsightTone.neutral,
         ),
       );
@@ -118,7 +118,7 @@ abstract final class InsightsService {
               'That averages ${DurationX.formatMinutes(avg)} on the days you '
               'were active. Focus sessions correlate with the days you clear '
               'your whole list.',
-          emoji: '🧘',
+          iconKey: 'focus',
           tone: InsightTone.positive,
         ),
       );
@@ -131,7 +131,7 @@ abstract final class InsightsService {
               'Tasks worked on inside a timed focus block get finished far '
               'more often than ones left open-ended. Try a single 25-minute '
               'block tomorrow.',
-          emoji: '⏱️',
+          iconKey: 'timer',
         ),
       );
     }
@@ -145,7 +145,7 @@ abstract final class InsightsService {
           body:
               'Your longest run is ${streak.longest} days. Consistency, not '
               'volume, is what moves the completion rate over time.',
-          emoji: '🔥',
+          iconKey: 'fire',
           tone: InsightTone.positive,
         ),
       );
@@ -158,7 +158,7 @@ abstract final class InsightsService {
               'You have active days scattered rather than consecutive. One '
               'small task a day beats an intense day followed by three empty '
               'ones.',
-          emoji: '〰️',
+          iconKey: 'wave',
           tone: InsightTone.warning,
         ),
       );
@@ -191,7 +191,7 @@ abstract final class InsightsService {
                   : 'Interestingly, your completion rate is ${delta.abs()} '
                         'points higher on lower-mood days — you may be using '
                         'work to push through. Watch for burnout.',
-              emoji: delta > 0 ? '☀️' : '🌧️',
+              iconKey: delta > 0 ? 'sun' : 'rain',
               tone: delta > 0 ? InsightTone.positive : InsightTone.warning,
             ),
           );
@@ -209,7 +209,7 @@ abstract final class InsightsService {
               'Days where every planned task got done. Look at what those '
               'days had in common — usually a shorter list and an earlier '
               'start.',
-          emoji: '✨',
+          iconKey: 'sparkle',
           tone: InsightTone.positive,
         ),
       );
@@ -229,7 +229,7 @@ abstract final class InsightsService {
               'of work per active day against roughly '
               '${DurationX.formatMinutes(profile.wakingMinutes)} awake. Leave '
               'room for the things a calendar never shows.',
-          emoji: '🫧',
+          iconKey: 'capacity',
           tone: InsightTone.warning,
         ),
       );

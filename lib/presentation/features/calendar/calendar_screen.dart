@@ -13,11 +13,34 @@ import '../../widgets/common.dart';
 import '../../widgets/task_card.dart';
 
 /// Month grid with an agenda for the selected day.
-class CalendarScreen extends ConsumerWidget {
+class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CalendarScreen> createState() => _CalendarScreenState();
+}
+
+class _CalendarScreenState extends ConsumerState<CalendarScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // The planner defaults the shared selection to tomorrow, which is right
+    // for planning but wrong here — a calendar should open on today.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final selected = ref.read(selectedDayProvider);
+      if (!selected.isSameDay(DateX.today)) {
+        ref.read(selectedDayProvider.notifier).state = DateX.today;
+        ref.read(calendarMonthProvider.notifier).state = DateTime(
+          DateX.today.year,
+          DateX.today.month,
+        );
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final colors = context.colors;
     final month = ref.watch(calendarMonthProvider);
     final selected = ref.watch(selectedDayProvider);

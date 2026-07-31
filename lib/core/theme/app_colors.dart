@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 
 /// Semantic colour palette for Vynqix.
 ///
-/// The token names and values are the single source of truth for the whole
-/// app — widgets should never hard-code a hex value. Read them through
-/// `Theme.of(context).extension<AppColors>()!` or the `context.colors`
-/// shorthand in `core/extensions/context_x.dart`.
+/// The app is light-only by design, so every value here is tuned for dark
+/// text on white surfaces. Notably, `success`, `warning` and `error` are
+/// deeper than their usual Tailwind-style equivalents — the lighter shades
+/// fail contrast when used as text or small icons on white.
+///
+/// Widgets should never hard-code a hex value. Read tokens through
+/// `context.colors` (see `core/extensions/context_x.dart`).
 @immutable
 class AppColors extends ThemeExtension<AppColors> {
   const AppColors({
     required this.primary,
+    required this.primarySoft,
     required this.secondary,
     required this.accent,
     required this.background,
@@ -17,6 +21,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.surfaceAlt,
     required this.foreground,
     required this.muted,
+    required this.faint,
     required this.border,
     required this.success,
     required this.warning,
@@ -24,14 +29,34 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.overlay,
   });
 
+  /// Brand indigo. Buttons, checkboxes, selected states, progress.
   final Color primary;
+
+  /// Tinted primary for selected-row and indicator backgrounds.
+  final Color primarySoft;
+
   final Color secondary;
   final Color accent;
+
+  /// Page background — a hint off-white so white cards read as raised.
   final Color background;
+
+  /// Cards, sheets, app bar, nav bar.
   final Color surface;
+
+  /// Inputs and inert fills.
   final Color surfaceAlt;
+
+  /// Primary text. 15.8:1 on [surface].
   final Color foreground;
+
+  /// Secondary text and icons. 5.1:1 on [surface] — passes AA for body text.
   final Color muted;
+
+  /// Disabled text and inactive glyphs. Decorative use only; too low for
+  /// anything the user must read.
+  final Color faint;
+
   final Color border;
   final Color success;
   final Color warning;
@@ -40,39 +65,26 @@ class AppColors extends ThemeExtension<AppColors> {
 
   static const light = AppColors(
     primary: Color(0xFF4F46E5),
+    primarySoft: Color(0xFFEEF0FE),
     secondary: Color(0xFF6366F1),
-    accent: Color(0xFF8B5CF6),
-    background: Color(0xFFF8FAFC),
+    accent: Color(0xFF7C3AED),
+    background: Color(0xFFF7F8FA),
     surface: Color(0xFFFFFFFF),
-    surfaceAlt: Color(0xFFF1F5F9),
-    foreground: Color(0xFF111827),
+    surfaceAlt: Color(0xFFF1F3F7),
+    foreground: Color(0xFF1A1D26),
     muted: Color(0xFF6B7280),
-    border: Color(0xFFE5E7EB),
-    success: Color(0xFF22C55E),
-    warning: Color(0xFFF59E0B),
-    error: Color(0xFFEF4444),
-    overlay: Color(0x66000000),
-  );
-
-  static const dark = AppColors(
-    primary: Color(0xFF6366F1),
-    secondary: Color(0xFF818CF8),
-    accent: Color(0xFFA78BFA),
-    background: Color(0xFF0F1117),
-    surface: Color(0xFF1A1D27),
-    surfaceAlt: Color(0xFF242736),
-    foreground: Color(0xFFF1F5F9),
-    muted: Color(0xFF9CA3AF),
-    border: Color(0xFF2D3148),
-    success: Color(0xFF4ADE80),
-    warning: Color(0xFFFBBF24),
-    error: Color(0xFFF87171),
-    overlay: Color(0x99000000),
+    faint: Color(0xFFA1A7B3),
+    border: Color(0xFFE4E7EC),
+    success: Color(0xFF16A34A),
+    warning: Color(0xFFD97706),
+    error: Color(0xFFDC2626),
+    overlay: Color(0x591A1D26),
   );
 
   @override
   AppColors copyWith({
     Color? primary,
+    Color? primarySoft,
     Color? secondary,
     Color? accent,
     Color? background,
@@ -80,6 +92,7 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? surfaceAlt,
     Color? foreground,
     Color? muted,
+    Color? faint,
     Color? border,
     Color? success,
     Color? warning,
@@ -88,6 +101,7 @@ class AppColors extends ThemeExtension<AppColors> {
   }) {
     return AppColors(
       primary: primary ?? this.primary,
+      primarySoft: primarySoft ?? this.primarySoft,
       secondary: secondary ?? this.secondary,
       accent: accent ?? this.accent,
       background: background ?? this.background,
@@ -95,6 +109,7 @@ class AppColors extends ThemeExtension<AppColors> {
       surfaceAlt: surfaceAlt ?? this.surfaceAlt,
       foreground: foreground ?? this.foreground,
       muted: muted ?? this.muted,
+      faint: faint ?? this.faint,
       border: border ?? this.border,
       success: success ?? this.success,
       warning: warning ?? this.warning,
@@ -108,6 +123,7 @@ class AppColors extends ThemeExtension<AppColors> {
     if (other is! AppColors) return this;
     return AppColors(
       primary: Color.lerp(primary, other.primary, t)!,
+      primarySoft: Color.lerp(primarySoft, other.primarySoft, t)!,
       secondary: Color.lerp(secondary, other.secondary, t)!,
       accent: Color.lerp(accent, other.accent, t)!,
       background: Color.lerp(background, other.background, t)!,
@@ -115,6 +131,7 @@ class AppColors extends ThemeExtension<AppColors> {
       surfaceAlt: Color.lerp(surfaceAlt, other.surfaceAlt, t)!,
       foreground: Color.lerp(foreground, other.foreground, t)!,
       muted: Color.lerp(muted, other.muted, t)!,
+      faint: Color.lerp(faint, other.faint, t)!,
       border: Color.lerp(border, other.border, t)!,
       success: Color.lerp(success, other.success, t)!,
       warning: Color.lerp(warning, other.warning, t)!,

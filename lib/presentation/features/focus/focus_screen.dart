@@ -177,7 +177,7 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
                   if (!context.mounted) return;
                   if (unlocked.isNotEmpty) {
                     context.showSnack(
-                      '${unlocked.first.emoji} ${unlocked.first.title} unlocked',
+                      '${unlocked.first.title} unlocked',
                     );
                   }
                   context.pop();

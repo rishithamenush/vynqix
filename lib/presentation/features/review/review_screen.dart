@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/extensions/context_x.dart';
+import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/token_styles.dart';
@@ -113,6 +114,8 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
           ),
           body: SafeArea(
             child: ListView(
+              keyboardDismissBehavior:
+                  ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.fromLTRB(
                 AppSpacing.screen,
                 AppSpacing.sm,
@@ -180,9 +183,10 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
                           ),
                           child: Column(
                             children: [
-                              Text(
-                                m.emoji,
-                                style: const TextStyle(fontSize: 24),
+                              Icon(
+                                AppIcons.mood(m),
+                                size: 26,
+                                color: selected ? m.color : colors.faint,
                               ),
                               const SizedBox(height: AppSpacing.xs),
                               Text(
@@ -210,7 +214,8 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
                 SegmentedSelector<EnergyLevel>(
                   values: EnergyLevel.values,
                   selected: _energy ?? EnergyLevel.medium,
-                  labelOf: (e) => '${e.emoji}  ${e.label}',
+                  labelOf: (e) => e.label,
+                  iconOf: AppIcons.energy,
                   onChanged: (e) => setState(() => _energy = e),
                 ),
                 const SizedBox(height: AppSpacing.xxl),

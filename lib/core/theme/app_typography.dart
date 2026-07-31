@@ -1,72 +1,89 @@
 import 'package:flutter/material.dart';
 
-/// Typography scale from `design.md`.
+/// Typography scale, set in Inter.
 ///
-/// Sizes are expressed in logical pixels and map 1:1 onto the design table so
-/// that a designer reading the spec can find the matching style here.
+/// Inter is the de-facto face for productivity apps — it was drawn for UI at
+/// small sizes, so counters stay open and `1/l/I` stay distinct in a dense
+/// task list, which the platform defaults do less well.
+///
+/// Sizes track the scale in `design.md`; the negative letter-spacing on
+/// larger sizes is Inter's own optical correction, without which headings
+/// look loose.
 abstract final class AppTypography {
-  static const _family = null; // Use the platform default (SF Pro / Roboto).
+  static const fontFamily = 'Inter';
 
   static const display = TextStyle(
-    fontFamily: _family,
-    fontSize: 32,
+    fontFamily: fontFamily,
+    fontSize: 30,
     fontWeight: FontWeight.w700,
-    height: 1.18,
-    letterSpacing: -0.6,
+    height: 1.2,
+    letterSpacing: -0.7,
   );
 
   static const titleLarge = TextStyle(
-    fontFamily: _family,
-    fontSize: 24,
+    fontFamily: fontFamily,
+    fontSize: 23,
     fontWeight: FontWeight.w700,
-    height: 1.25,
-    letterSpacing: -0.4,
+    height: 1.26,
+    letterSpacing: -0.5,
   );
 
   static const title = TextStyle(
-    fontFamily: _family,
-    fontSize: 20,
+    fontFamily: fontFamily,
+    fontSize: 19,
     fontWeight: FontWeight.w600,
     height: 1.3,
-    letterSpacing: -0.2,
+    letterSpacing: -0.3,
   );
 
   static const subtitle = TextStyle(
-    fontFamily: _family,
-    fontSize: 17,
+    fontFamily: fontFamily,
+    fontSize: 16,
     fontWeight: FontWeight.w600,
     height: 1.35,
+    letterSpacing: -0.2,
   );
 
+  /// Task titles and body copy.
   static const body = TextStyle(
-    fontFamily: _family,
+    fontFamily: fontFamily,
     fontSize: 15,
-    fontWeight: FontWeight.w400,
-    height: 1.45,
+    fontWeight: FontWeight.w500,
+    height: 1.4,
+    letterSpacing: -0.1,
   );
 
   static const bodySmall = TextStyle(
-    fontFamily: _family,
-    fontSize: 13,
+    fontFamily: fontFamily,
+    fontSize: 13.5,
     fontWeight: FontWeight.w400,
     height: 1.4,
   );
 
   static const caption = TextStyle(
-    fontFamily: _family,
-    fontSize: 11,
+    fontFamily: fontFamily,
+    fontSize: 12,
     fontWeight: FontWeight.w400,
     height: 1.35,
-    letterSpacing: 0.2,
   );
 
-  /// Tabular figures for timers and counters so digits do not jitter.
+  /// Tabular figures so a running countdown does not jitter.
   static const timer = TextStyle(
-    fontFamily: _family,
-    fontSize: 64,
-    fontWeight: FontWeight.w200,
+    fontFamily: fontFamily,
+    fontSize: 62,
+    fontWeight: FontWeight.w500,
     height: 1.0,
     letterSpacing: -2,
+    fontFeatures: [FontFeature.tabularFigures()],
+  );
+
+  /// Numbers in stat tiles and charts.
+  static const numeric = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 22,
+    fontWeight: FontWeight.w700,
+    height: 1.15,
+    letterSpacing: -0.5,
     fontFeatures: [FontFeature.tabularFigures()],
   );
 

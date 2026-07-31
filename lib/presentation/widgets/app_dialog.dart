@@ -46,18 +46,21 @@ class AppDialogBox extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: tint.withValues(alpha: 0.12),
+            Center(
+              child: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: tint.withValues(alpha: 0.12),
+                ),
+                child: Icon(icon, color: tint, size: 24),
               ),
-              child: Icon(icon, color: tint, size: 24),
             ),
             const SizedBox(height: AppSpacing.lg),
             Text(
               title,
+              textAlign: TextAlign.center,
               style:
                   (compactTitle ? AppTypography.subtitle : AppTypography.title)
                       .copyWith(color: colors.foreground),
@@ -66,6 +69,7 @@ class AppDialogBox extends StatelessWidget {
               const SizedBox(height: AppSpacing.sm),
               Text(
                 message!,
+                textAlign: TextAlign.center,
                 style: AppTypography.bodySmall.copyWith(color: colors.muted),
               ),
             ],

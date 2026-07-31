@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/extensions/context_x.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
+import '../../core/utils/responsive.dart';
 import 'app_card.dart';
 
 /// Section title with an optional trailing action, used above every list.
@@ -47,7 +48,9 @@ class SectionHeader extends StatelessWidget {
                   const SizedBox(height: AppSpacing.xxs),
                   Text(
                     subtitle!,
-                    style: AppTypography.bodySmall.copyWith(color: colors.muted),
+                    style: AppTypography.bodySmall.copyWith(
+                      color: colors.muted,
+                    ),
                   ),
                 ],
               ],
@@ -61,10 +64,13 @@ class SectionHeader extends StatelessWidget {
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              child: Text(actionLabel!, style: AppTypography.bodySmall.copyWith(
-                color: colors.primary,
-                fontWeight: FontWeight.w600,
-              )),
+              child: Text(
+                actionLabel!,
+                style: AppTypography.bodySmall.copyWith(
+                  color: colors.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
         ],
       ),
@@ -106,7 +112,11 @@ class AppBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: compact ? 11 : 13, color: filled ? Colors.white : tint),
+            Icon(
+              icon,
+              size: compact ? 11 : 13,
+              color: filled ? Colors.white : tint,
+            ),
             const SizedBox(width: AppSpacing.xs),
           ],
           Text(
@@ -161,11 +171,7 @@ class EmptyState extends StatelessWidget {
                 color: colors.primary.withValues(alpha: 0.10),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                size: compact ? 27 : 35,
-                color: colors.primary,
-              ),
+              child: Icon(icon, size: compact ? 27 : 35, color: colors.primary),
             ),
             const SizedBox(height: AppSpacing.xl),
             Text(
@@ -183,9 +189,7 @@ class EmptyState extends StatelessWidget {
               const SizedBox(height: AppSpacing.xl),
               FilledButton(
                 onPressed: onAction,
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size(180, 46),
-                ),
+                style: FilledButton.styleFrom(minimumSize: const Size(180, 46)),
                 child: Text(actionLabel!),
               ),
             ],
@@ -372,6 +376,55 @@ class StatTile extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// Lays [StatTile]s out in rows of [ResponsiveContext.statColumns].
+///
+/// A `GridView` with a fixed `childAspectRatio` sets each tile's height from
+/// its width, so the moment the text gets taller than that guess — larger
+/// system font, a label that wraps to two lines, a narrow phone — the content
+/// overflows the tile. Here the row is as tall as its tallest tile and no
+/// taller.
+class StatGrid extends StatelessWidget {
+  const StatGrid({
+    super.key,
+    required this.children,
+    this.spacing = AppSpacing.md,
+  });
+
+  final List<Widget> children;
+  final double spacing;
+
+  @override
+  Widget build(BuildContext context) {
+    final columns = context.statColumns;
+    final rows = <Widget>[];
+
+    for (var start = 0; start < children.length; start += columns) {
+      if (rows.isNotEmpty) rows.add(SizedBox(height: spacing));
+      rows.add(
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (var column = 0; column < columns; column++) ...[
+                if (column > 0) SizedBox(width: spacing),
+                Expanded(
+                  child: start + column < children.length
+                      // The trailing gaps in a short last row keep the tiles
+                      // the same width as the rows above.
+                      ? children[start + column]
+                      : const SizedBox.shrink(),
+                ),
+              ],
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Column(mainAxisSize: MainAxisSize.min, children: rows);
   }
 }
 

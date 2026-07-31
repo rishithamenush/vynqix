@@ -72,79 +72,75 @@ class AnalyticsScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-              SegmentedSelector<int>(
-                values: const [7, 30, 90],
-                selected: range,
-                labelOf: (d) => '$d days',
-                onChanged: (d) =>
-                    ref.read(analyticsRangeProvider.notifier).state = d,
-              ),
-              const SizedBox(height: AppSpacing.xl),
+                    SegmentedSelector<int>(
+                      values: const [7, 30, 90],
+                      selected: range,
+                      labelOf: (d) => '$d days',
+                      onChanged: (d) =>
+                          ref.read(analyticsRangeProvider.notifier).state = d,
+                    ),
+                    const SizedBox(height: AppSpacing.xl),
 
-              GridView.count(
-                // Two tiles on a phone, more as the window widens, so the
-                // cards never stretch into letterboxes.
-                crossAxisCount: context.statColumns,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: AppSpacing.md,
-                crossAxisSpacing: AppSpacing.md,
-                childAspectRatio: context.isSmallPhone ? 1.35 : 1.5,
-                children: [
-                  StatTile(
-                    value: '${stats.totalCompleted}',
-                    label: 'Tasks completed',
-                    icon: Icons.check_circle_outline_rounded,
-                    color: context.colors.success,
-                  ),
-                  StatTile(
-                    value: '${(stats.completionRate * 100).round()}%',
-                    label: 'Completion rate',
-                    icon: Icons.percent_rounded,
-                  ),
-                  StatTile(
-                    value: DurationX.formatMinutes(stats.totalFocusMinutes),
-                    label: 'Time focused',
-                    icon: Icons.timer_outlined,
-                    color: context.colors.accent,
-                  ),
-                  StatTile(
-                    value: '${streak?.current ?? 0}',
-                    label: 'Day streak · best ${streak?.longest ?? 0}',
-                    icon: Icons.local_fire_department_outlined,
-                    color: context.colors.warning,
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.xxl),
+                    // Two tiles on a phone, more as the window widens, so the cards
+                    // never stretch into letterboxes.
+                    StatGrid(
+                      children: [
+                        StatTile(
+                          value: '${stats.totalCompleted}',
+                          label: 'Tasks completed',
+                          icon: Icons.check_circle_outline_rounded,
+                          color: context.colors.success,
+                        ),
+                        StatTile(
+                          value: '${(stats.completionRate * 100).round()}%',
+                          label: 'Completion rate',
+                          icon: Icons.percent_rounded,
+                        ),
+                        StatTile(
+                          value: DurationX.formatMinutes(
+                            stats.totalFocusMinutes,
+                          ),
+                          label: 'Time focused',
+                          icon: Icons.timer_outlined,
+                          color: context.colors.accent,
+                        ),
+                        StatTile(
+                          value: '${streak?.current ?? 0}',
+                          label: 'Day streak · best ${streak?.longest ?? 0}',
+                          icon: Icons.local_fire_department_outlined,
+                          color: context.colors.warning,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.xxl),
 
-              _ChartCard(
-                title: 'Tasks completed',
-                subtitle: 'Last $range days',
-                child: _CompletionBarChart(stats: stats),
-              ),
-              const SizedBox(height: AppSpacing.lg),
+                    _ChartCard(
+                      title: 'Tasks completed',
+                      subtitle: 'Last $range days',
+                      child: _CompletionBarChart(stats: stats),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
 
-              _ChartCard(
-                title: 'When you get things done',
-                subtitle: 'Completions by hour of day',
-                child: _HourChart(stats: stats),
-              ),
-              const SizedBox(height: AppSpacing.lg),
+                    _ChartCard(
+                      title: 'When you get things done',
+                      subtitle: 'Completions by hour of day',
+                      child: _HourChart(stats: stats),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
 
-              _ChartCard(
-                title: 'Where your time goes',
-                subtitle: 'Completed tasks by category',
-                child: _CategoryChart(stats: stats),
-              ),
-              const SizedBox(height: AppSpacing.lg),
+                    _ChartCard(
+                      title: 'Where your time goes',
+                      subtitle: 'Completed tasks by category',
+                      child: _CategoryChart(stats: stats),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
 
-              if (stats.moodScores.isNotEmpty)
-                _ChartCard(
-                  title: 'Mood trend',
-                  subtitle: 'From your daily reviews',
-                  child: _MoodChart(stats: stats),
-                ),
+                    if (stats.moodScores.isNotEmpty)
+                      _ChartCard(
+                        title: 'Mood trend',
+                        subtitle: 'From your daily reviews',
+                        child: _MoodChart(stats: stats),
+                      ),
                   ],
                 ),
               ),
@@ -500,11 +496,7 @@ class _MoodChart extends StatelessWidget {
                   (m) => m.score == value.toInt(),
                   orElse: () => Mood.okay,
                 );
-                return Icon(
-                  AppIcons.mood(mood),
-                  size: 15,
-                  color: mood.color,
-                );
+                return Icon(AppIcons.mood(mood), size: 15, color: mood.color);
               },
             ),
           ),

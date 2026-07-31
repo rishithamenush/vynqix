@@ -1,0 +1,45 @@
+name: vynqix
+description: "Vynqix — Plan tomorrow. Master today. A premium local-first daily task scheduler."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # State management
+  flutter_riverpod: ^2.6.1
+
+  # Routing
+  go_router: ^14.8.1
+
+  # Persistence
+  sqflite: ^2.4.2
+  sqflite_common_ffi: ^2.3.5
+  path: ^1.9.1
+  path_provider: ^2.1.5
+  shared_preferences: ^2.5.2
+
+  # Utilities
+  intl: ^0.20.2
+  uuid: ^4.5.1
+  collection: ^1.19.1
+  meta: ^1.16.0
+
+  # Charts
+  fl_chart: ^0.70.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

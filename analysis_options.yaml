@@ -1,0 +1,43 @@
+# Static analysis configuration for Vynqix.
+#
+# Run `flutter analyze` (or `dart analyze`) to check the project.
+
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  errors:
+    # Anything unused is either a mistake or dead weight — fail the build.
+    unused_import: error
+    unused_local_variable: error
+    unused_element: error
+    dead_code: error
+    # Silent async gaps are the most common source of real bugs here.
+    unawaited_futures: warning
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+
+linter:
+  rules:
+    # Correctness
+    always_declare_return_types: true
+    avoid_dynamic_calls: true
+    avoid_slow_async_io: true
+    cancel_subscriptions: true
+    close_sinks: true
+    literal_only_boolean_expressions: true
+    no_adjacent_strings_in_list: true
+    throw_in_finally: true
+    unnecessary_statements: true
+
+    # Style — consistency across the codebase
+    always_use_package_imports: false
+    directives_ordering: true
+    prefer_final_locals: true
+    prefer_single_quotes: true
+    sort_child_properties_last: true
+    unnecessary_lambdas: true
+    use_string_buffers: true
+
+    # Documentation on the public surface of each layer
+    slash_for_doc_comments: true

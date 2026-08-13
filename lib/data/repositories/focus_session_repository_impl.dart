@@ -64,6 +64,21 @@ class FocusSessionRepositoryImpl
   }
 
   @override
+  Future<void> saveAll(List<FocusSession> sessions) async {
+    if (sessions.isEmpty) return;
+    final batch = _c.batch();
+    for (final session in sessions) {
+      batch.insert(
+        _table,
+        session.toRow(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+    await batch.commit(noResult: true);
+    notifyChanged();
+  }
+
+  @override
   Future<void> delete(String id) async {
     await _c.delete(_table, where: 'id = ?', whereArgs: [id]);
     notifyChanged();

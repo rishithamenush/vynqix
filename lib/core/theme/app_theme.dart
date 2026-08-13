@@ -1,3 +1,5 @@
+// Flutter 3.43 stopped re-exporting this from material.dart.
+import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

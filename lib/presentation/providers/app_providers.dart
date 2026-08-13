@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/local/app_database.dart';
+import '../../data/local/demo_data.dart';
 import '../../data/repositories/day_log_repository_impl.dart';
 import '../../data/repositories/focus_session_repository_impl.dart';
 import '../../data/repositories/profile_repository_impl.dart';
@@ -50,6 +51,18 @@ final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
   final repo = SettingsRepositoryImpl(ref.watch(databaseProvider));
   ref.onDispose(repo.dispose);
   return repo;
+});
+
+/// Fills an empty database with a year of believable history.
+///
+/// Only reachable from Settings — nothing in the normal app flow touches it.
+final demoDataSeederProvider = Provider<DemoDataSeeder>((ref) {
+  return DemoDataSeeder(
+    tasks: ref.watch(taskRepositoryProvider),
+    dayLogs: ref.watch(dayLogRepositoryProvider),
+    focusSessions: ref.watch(focusSessionRepositoryProvider),
+    profile: ref.watch(profileRepositoryProvider),
+  );
 });
 
 /// Re-runs the current provider whenever any of [repositories] reports a write.

@@ -55,6 +55,21 @@ class DayLogRepositoryImpl
   }
 
   @override
+  Future<void> saveAll(List<DayLog> logs) async {
+    if (logs.isEmpty) return;
+    final batch = _c.batch();
+    for (final log in logs) {
+      batch.insert(
+        _table,
+        log.toRow(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+    await batch.commit(noResult: true);
+    notifyChanged();
+  }
+
+  @override
   Future<void> delete(String dayKey) async {
     await _c.delete(_table, where: 'dayKey = ?', whereArgs: [dayKey]);
     notifyChanged();

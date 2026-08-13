@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,6 +12,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/date_x.dart';
 import '../../../core/utils/responsive.dart';
 import '../../providers/app_providers.dart';
+import '../../providers/task_providers.dart';
 import '../../widgets/app_card.dart';
 import '../../widgets/app_dialog.dart';
 import '../../widgets/app_sheet.dart';
@@ -212,6 +215,12 @@ class SettingsScreen extends ConsumerWidget {
                   onTap: () => context.push(Routes.premium),
                 ),
                 _NavRow(
+                  icon: Icons.auto_awesome_outlined,
+                  label: 'Load sample data',
+                  value: 'Demo',
+                  onTap: () => _loadSampleData(context, ref),
+                ),
+                _NavRow(
                   icon: Icons.delete_outline_rounded,
                   label: 'Reset all data',
                   destructive: true,
@@ -252,6 +261,63 @@ class SettingsScreen extends ConsumerWidget {
       await ref
           .read(profileProvider.notifier)
           .edit((p) => p.copyWith(dailyTaskTarget: picked));
+    }
+  }
+
+  /// Replaces the database with a year of generated history, so the app can be
+  /// explored — or demoed — without spending months filling it in by hand.
+  Future<void> _loadSampleData(BuildContext context, WidgetRef ref) async {
+    final ok = await confirmDialog(
+      context,
+      title: 'Load sample data?',
+      message:
+          'Replaces everything with an example software engineer’s year: ten '
+          'months of finished and missed work, today already underway, and the '
+          'next two months planned. Your current data is deleted.',
+      confirmLabel: 'Replace with sample data',
+    );
+    if (!ok || !context.mounted) return;
+
+    final navigator = Navigator.of(context, rootNavigator: true);
+    unawaited(
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const PopScope(
+          canPop: false,
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      ),
+    );
+
+    final database = ref.read(databaseProvider);
+    final seeder = ref.read(demoDataSeederProvider);
+    final rewards = ref.read(rewardsUseCaseProvider);
+
+    await database.clearAll();
+    ref.read(profileRepositoryProvider).invalidateCache();
+    ref.read(settingsRepositoryProvider).invalidateCache();
+
+    final data = await seeder.seed();
+
+    // Backfill the badges the generated history has already earned, rather
+    // than dripping them out the next time the user completes something.
+    ref.read(profileRepositoryProvider).invalidateCache();
+    await rewards.grant(0);
+
+    ref.invalidate(profileProvider);
+    ref.invalidate(settingsProvider);
+    await ref.read(profileProvider.future);
+
+    navigator.pop();
+
+    if (context.mounted) {
+      context.showMessage(
+        '${data.tasks.length} tasks, ${data.dayLogs.length} daily reviews and '
+        '${data.focusSessions.length} focus sessions loaded.',
+        isSuccess: true,
+        icon: Icons.auto_awesome_outlined,
+      );
     }
   }
 

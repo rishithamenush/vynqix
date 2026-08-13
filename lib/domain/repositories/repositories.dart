@@ -60,6 +60,8 @@ abstract interface class DayLogRepository implements Repository {
 
   Future<void> save(DayLog log);
 
+  Future<void> saveAll(List<DayLog> logs);
+
   Future<void> delete(String dayKey);
 
   Future<int> countLogged();
@@ -73,6 +75,8 @@ abstract interface class FocusSessionRepository implements Repository {
   Future<List<FocusSession>> getByTask(String taskId);
 
   Future<void> save(FocusSession session);
+
+  Future<void> saveAll(List<FocusSession> sessions);
 
   Future<void> delete(String id);
 

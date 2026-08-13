@@ -42,6 +42,33 @@ dev_dependencies:
 
   flutter_lints: ^5.0.0
 
+  # Regenerates the per-platform launcher icons from the masters in
+  # assets/branding. See tool/generate_app_icon.py for the masters themselves.
+  flutter_launcher_icons: ^0.14.4
+
+# Run `dart run flutter_launcher_icons` after changing anything here.
+flutter_launcher_icons:
+  image_path: assets/branding/app_icon.png
+  android: ic_launcher
+  ios: true
+  remove_alpha_ios: true
+  min_sdk_android: 21
+  adaptive_icon_background: "#111827"
+  adaptive_icon_foreground: assets/branding/app_icon_foreground.png
+  adaptive_icon_monochrome: assets/branding/app_icon_monochrome.png
+  macos:
+    generate: true
+    image_path: assets/branding/app_icon.png
+  web:
+    generate: true
+    image_path: assets/branding/app_icon.png
+    background_color: "#111827"
+    theme_color: "#2563EB"
+  windows:
+    generate: true
+    image_path: assets/branding/app_icon.png
+    icon_size: 256
+
 flutter:
   uses-material-design: true
 

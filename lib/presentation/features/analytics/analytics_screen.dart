@@ -8,6 +8,7 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/token_styles.dart';
+import '../../../core/utils/chart_axis.dart';
 import '../../../core/utils/date_x.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../domain/entities/stats.dart';
@@ -199,14 +200,13 @@ class _CompletionBarChart extends StatelessWidget {
     final days = stats.days.length > 30
         ? stats.days.sublist(stats.days.length - 30)
         : stats.days;
-    final maxY = days
-        .map((d) => d.total)
-        .fold<int>(1, (a, b) => a > b ? a : b)
-        .toDouble();
+    final axis = ChartAxis.verticalAxis(
+      days.map((d) => d.total).fold<int>(1, (a, b) => a > b ? a : b),
+    );
 
     return BarChart(
       BarChartData(
-        maxY: maxY + 1,
+        maxY: axis.max,
         alignment: BarChartAlignment.spaceAround,
         gridData: FlGridData(
           drawVerticalLine: false,
@@ -221,7 +221,7 @@ class _CompletionBarChart extends StatelessWidget {
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 26,
-              interval: (maxY / 2).ceilToDouble().clamp(1, double.infinity),
+              interval: axis.interval,
               getTitlesWidget: (value, _) => Text(
                 value.toInt().toString(),
                 style: AppTypography.caption.copyWith(color: colors.muted),
@@ -232,17 +232,21 @@ class _CompletionBarChart extends StatelessWidget {
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 24,
-              interval: (days.length / 6).ceilToDouble(),
               getTitlesWidget: (value, _) {
                 final i = value.toInt();
-                if (i < 0 || i >= days.length) return const SizedBox.shrink();
+                // Thinned here rather than through `interval`, which a bar
+                // chart's horizontal axis ignores — see [ChartAxis.showsLabel].
+                if (!ChartAxis.showsLabel(i, days.length)) {
+                  return const SizedBox.shrink();
+                }
                 return Padding(
                   padding: const EdgeInsets.only(top: AppSpacing.xs),
                   child: Text(
                     DateX.shortLabel(DateX.parseKey(days[i].dayKey)),
+                    maxLines: 1,
                     style: AppTypography.caption.copyWith(
                       color: colors.muted,
-                      fontSize: 9,
+                      fontSize: 10,
                     ),
                   ),
                 );
@@ -315,6 +319,9 @@ class _HourChart extends StatelessWidget {
               showTitles: true,
               interval: 6,
               reservedSize: 24,
+              // Without this fl_chart also labels the axis maximum: 23:00
+              // would be drawn hard against 18:00 and clipped at the edge.
+              maxIncluded: false,
               getTitlesWidget: (value, _) => Padding(
                 padding: const EdgeInsets.only(top: AppSpacing.xs),
                 child: Text(

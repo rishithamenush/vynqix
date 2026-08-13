@@ -29,7 +29,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.overlay,
   });
 
-  /// Brand blue. Buttons, checkboxes, selected states, progress.
+  /// Brand emerald. Buttons, checkboxes, selected states, progress.
   final Color primary;
 
   /// Tinted primary for selected-row and indicator backgrounds.
@@ -47,10 +47,10 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Inputs and inert fills.
   final Color surfaceAlt;
 
-  /// Primary text. 15.8:1 on [surface].
+  /// Primary text. 17.8:1 on [surface].
   final Color foreground;
 
-  /// Secondary text and icons. 5.1:1 on [surface] — passes AA for body text.
+  /// Secondary text and icons. 5.3:1 on [surface] — passes AA for body text.
   final Color muted;
 
   /// Disabled text and inactive glyphs. Decorative use only; too low for
@@ -64,23 +64,33 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color overlay;
 
   static const light = AppColors(
-    // Focus Blue. Task apps converge on blue because it reads calm and
-    // focused; violet/indigo reads as a creative or AI tool instead.
-    primary: Color(0xFF2563EB),
-    primarySoft: Color(0xFFEFF4FF),
-    secondary: Color(0xFF1D4ED8),
-    accent: Color(0xFF0EA5E9),
-    background: Color(0xFFF6F8FB),
+    // Deep emerald. Green is the colour of a finished task, so making it the
+    // brand colour means a completed checkbox reads as the app's own voice
+    // rather than a separate "success" signal bolted on.
+    //
+    // The shade matters: emerald-600 (#059669) is the prettier green, but
+    // white on it is only 3.8:1 and every primary button here carries a white
+    // label. emerald-700 clears AA at 5.5:1 and loses very little punch.
+    primary: Color(0xFF047857),
+    primarySoft: Color(0xFFECFDF5),
+    secondary: Color(0xFF065F46),
+    accent: Color(0xFF34D399),
+    // The neutrals carry a slight green cast so they sit with the primary
+    // instead of fighting it — a blue-grey background under a green button
+    // is the tell of a recoloured theme.
+    background: Color(0xFFF4F8F6),
     surface: Color(0xFFFFFFFF),
-    surfaceAlt: Color(0xFFF0F3F8),
-    foreground: Color(0xFF111827),
-    muted: Color(0xFF667085),
-    faint: Color(0xFF9CA5B4),
-    border: Color(0xFFE3E8EF),
+    surfaceAlt: Color(0xFFEDF3F0),
+    foreground: Color(0xFF0F1A16),
+    muted: Color(0xFF5F6F69),
+    faint: Color(0xFF98A8A1),
+    border: Color(0xFFDEE7E2),
+    // Kept a yellower grass green so a success badge stays distinguishable
+    // from a primary-filled control sitting next to it.
     success: Color(0xFF15803D),
     warning: Color(0xFFC2410C),
     error: Color(0xFFDC2626),
-    overlay: Color(0x59111827),
+    overlay: Color(0x590F1A16),
   );
 
   @override

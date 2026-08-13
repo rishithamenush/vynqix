@@ -14,6 +14,12 @@ Outputs (run from the repo root, requires Pillow):
 
 Then regenerate the platform assets:
   dart run flutter_launcher_icons
+
+Heads up: flutter_launcher_icons 0.14.4 writes `AppIcon` into
+ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS in
+ios/Runner.xcodeproj/project.pbxproj — a boolean setting, and the key it
+actually wants (ASSETCATALOG_COMPILER_APPICON_NAME) is already correct. Reset
+those two lines to YES after every run, or `git checkout` the pbxproj.
 """
 
 from pathlib import Path
@@ -23,8 +29,8 @@ from PIL import Image, ImageDraw
 SIZE = 1024
 SS = 4  # supersample factor; the master is drawn 4x and downscaled
 
-INK = (0x11, 0x18, 0x27, 255)  # AppColors.light.foreground — the tile
-SKY = (0x38, 0xBD, 0xF8, 255)  # accent, one step lighter for contrast on ink
+INK = (0x0F, 0x1A, 0x16, 255)  # AppColors.light.foreground — the tile
+MINT = (0x34, 0xD3, 0x99, 255)  # AppColors.light.accent — the short arm
 WHITE = (0xFF, 0xFF, 0xFF, 255)
 
 # The stroke in its own 1000-unit design space: short arm, vertex, long arm.
@@ -34,7 +40,7 @@ C = (880, 200)
 STROKE = 128
 
 
-def _mark(width: float, long_arm=WHITE, short_arm=SKY) -> Image.Image:
+def _mark(width: float, long_arm=WHITE, short_arm=MINT) -> Image.Image:
     """Renders the check-V on transparent pixels, trimmed to its bounds.
 
     `width` is the requested width in final (pre-supersample) pixels.

@@ -8,11 +8,12 @@ import '../../domain/enums/task_enums.dart';
 extension TaskCategoryStyle on TaskCategory {
   /// Eight well-separated hues, all around the 600 weight so they stay
   /// legible as small text and 6dp dots on white. None sits near the primary
-  /// blue, so a category dot is never mistaken for a UI accent.
+  /// emerald, so a category dot is never mistaken for a UI accent — health
+  /// used to be green and moved to blue when the brand colour did.
   Color get color => switch (this) {
     TaskCategory.work => const Color(0xFF7C3AED),
     TaskCategory.study => const Color(0xFF0891B2),
-    TaskCategory.health => const Color(0xFF059669),
+    TaskCategory.health => const Color(0xFF2563EB),
     TaskCategory.personal => const Color(0xFFEA580C),
     TaskCategory.social => const Color(0xFFDB2777),
     TaskCategory.finance => const Color(0xFFCA8A04),
@@ -52,7 +53,7 @@ extension TaskStatusStyle on TaskStatus {
     TaskStatus.inProgress => const Color(0xFF2563EB),
     TaskStatus.missed => const Color(0xFFDC2626),
     TaskStatus.skipped => const Color(0xFF64748B),
-    TaskStatus.pending => const Color(0xFF9CA5B4),
+    TaskStatus.pending => const Color(0xFF98A8A1),
   };
 
   IconData get icon => switch (this) {

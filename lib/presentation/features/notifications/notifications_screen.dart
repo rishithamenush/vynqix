@@ -58,7 +58,7 @@ class NotificationsScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.tune_rounded),
             tooltip: 'Reminder settings',
-            onPressed: () => context.push(Routes.settings),
+            onPressed: () => context.pushOnce(Routes.settings),
           ),
         ],
       ),
@@ -175,18 +175,18 @@ class _NudgeCard extends StatelessWidget {
       case NudgeKind.reminder:
       case NudgeKind.overdue:
         if (taskId != null) {
-          context.push(Routes.taskEdit(taskId));
+          context.pushOnce(Routes.taskEdit(taskId));
         } else {
           context.go(Routes.home);
         }
       case NudgeKind.planning:
         context.go(Routes.planner);
       case NudgeKind.review:
-        context.push('${Routes.review}?day=${DateX.todayKey}');
+        context.pushOnce('${Routes.review}?day=${DateX.todayKey}');
       case NudgeKind.streak:
         context.go(Routes.home);
       case NudgeKind.celebration:
-        context.push(Routes.achievements);
+        context.pushOnce(Routes.achievements);
     }
   }
 }

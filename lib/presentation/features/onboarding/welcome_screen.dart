@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
 import '../../../core/constants/app_constants.dart';
@@ -128,7 +127,7 @@ class WelcomeScreen extends StatelessWidget {
                       ),
 
                       FilledButton(
-                        onPressed: () => context.push(Routes.onboardingProfile),
+                        onPressed: () => context.pushOnce(Routes.onboardingProfile),
                         child: const Text('Get started'),
                       ),
                       const SizedBox(height: AppSpacing.md),

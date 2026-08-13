@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
 import '../../../core/extensions/context_x.dart';
@@ -37,7 +36,7 @@ class ProfileScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined),
-            onPressed: () => context.push(Routes.settings),
+            onPressed: () => context.pushOnce(Routes.settings),
           ),
           const SizedBox(width: AppSpacing.xs),
         ],
@@ -209,22 +208,22 @@ class ProfileScreen extends ConsumerWidget {
                   icon: Icons.emoji_events_outlined,
                   label: 'Achievements',
                   trailing: '$unlockedCount / ${achievements.length}',
-                  onTap: () => context.push(Routes.achievements),
+                  onTap: () => context.pushOnce(Routes.achievements),
                 ),
                 _MenuItem(
                   icon: Icons.auto_awesome_outlined,
                   label: 'Insights',
-                  onTap: () => context.push(Routes.insights),
+                  onTap: () => context.pushOnce(Routes.insights),
                 ),
                 _MenuItem(
                   icon: Icons.history_rounded,
                   label: 'History',
-                  onTap: () => context.push(Routes.history),
+                  onTap: () => context.pushOnce(Routes.history),
                 ),
                 _MenuItem(
                   icon: Icons.notifications_none_rounded,
                   label: 'Reminders',
-                  onTap: () => context.push(Routes.notifications),
+                  onTap: () => context.pushOnce(Routes.notifications),
                 ),
               ],
             ),
@@ -235,12 +234,12 @@ class ProfileScreen extends ConsumerWidget {
                   icon: Icons.workspace_premium_outlined,
                   label: profile.isPremium ? 'Premium active' : 'Go Premium',
                   color: colors.accent,
-                  onTap: () => context.push(Routes.premium),
+                  onTap: () => context.pushOnce(Routes.premium),
                 ),
                 _MenuItem(
                   icon: Icons.settings_outlined,
                   label: 'Settings',
-                  onTap: () => context.push(Routes.settings),
+                  onTap: () => context.pushOnce(Routes.settings),
                 ),
               ],
             ),

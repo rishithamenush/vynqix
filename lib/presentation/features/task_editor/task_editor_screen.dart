@@ -9,6 +9,7 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/token_styles.dart';
+import '../../../core/utils/async_guard.dart';
 import '../../../core/utils/date_x.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../domain/entities/subtask.dart';
@@ -135,11 +136,11 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
 
     if (mounted) {
       setState(() => _saving = false);
-      context.pop();
+      context.popIfCurrent();
     }
   }
 
-  Future<void> _delete() async {
+  Future<void> _delete() => OneShot.run('taskEditor.delete', () async {
     final task = _original;
     if (task == null) return;
 
@@ -163,8 +164,8 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
         .read(taskControllerProvider)
         .delete(task, wholeSeries: scope == _DeleteScope.series);
 
-    if (mounted) context.pop();
-  }
+    if (mounted) context.popIfCurrent();
+  });
 
   Future<_DeleteScope?> _askDeleteScope(Task task) {
     return showOptionsSheet<_DeleteScope>(
@@ -219,9 +220,9 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
   }
 
   /// Confirms before discarding unsaved edits.
-  Future<void> _handleClose() async {
+  Future<void> _handleClose() => OneShot.run('taskEditor.close', () async {
     if (!_isDirty) {
-      context.pop();
+      context.popIfCurrent();
       return;
     }
     final discard = await confirmDialog(
@@ -230,8 +231,8 @@ class _TaskEditorScreenState extends ConsumerState<TaskEditorScreen> {
       message: 'Your edits to this task have not been saved.',
       confirmLabel: 'Discard',
     );
-    if (discard && mounted) context.pop();
-  }
+    if (discard && mounted) context.popIfCurrent();
+  });
 
   @override
   Widget build(BuildContext context) {

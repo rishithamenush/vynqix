@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
 import '../../../core/extensions/context_x.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/async_guard.dart';
 import '../../../core/utils/responsive.dart';
 import '../../providers/app_providers.dart';
 import '../../widgets/page_body.dart';
@@ -41,7 +41,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
     super.dispose();
   }
 
-  Future<void> _next() async {
+  Future<void> _next() => OneShot.run('onboarding.next', () async {
     await ref
         .read(profileProvider.notifier)
         .edit(
@@ -52,8 +52,8 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen> {
             avatarIconKey: _avatar,
           ),
         );
-    if (mounted) context.push(Routes.onboardingLifestyle);
-  }
+    if (mounted) context.pushOnce(Routes.onboardingLifestyle);
+  });
 
   @override
   Widget build(BuildContext context) {

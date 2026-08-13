@@ -1,7 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
 import '../../../core/extensions/context_x.dart';
@@ -35,7 +34,7 @@ class AnalyticsScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.auto_awesome_outlined),
             tooltip: 'Insights',
-            onPressed: () => context.push(Routes.insights),
+            onPressed: () => context.pushOnce(Routes.insights),
           ),
         ],
       ),

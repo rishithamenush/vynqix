@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/router.dart';
 import '../../../core/extensions/context_x.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/async_guard.dart';
 import '../../../core/utils/responsive.dart';
 import '../../providers/app_providers.dart';
 import '../../widgets/app_card.dart';
@@ -215,13 +217,16 @@ class PremiumScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _activate(BuildContext context, WidgetRef ref) async {
-    await ref
-        .read(profileProvider.notifier)
-        .edit((p) => p.copyWith(isPremium: true));
-    if (context.mounted) {
-      context.showMessage('Premium features unlocked.');
-      context.pop();
-    }
+  Future<void> _activate(BuildContext context, WidgetRef ref) {
+    return OneShot.run('premium.activate', () async {
+      await ref
+          .read(profileProvider.notifier)
+          .edit((p) => p.copyWith(isPremium: true));
+      if (!context.mounted) return;
+      // Awaited: `showMessage` pushes a dialog, so popping straight after it
+      // takes the dialog down instead of this screen.
+      await context.showMessage('Premium features unlocked.');
+      if (context.mounted) context.popIfCurrent();
+    });
   }
 }

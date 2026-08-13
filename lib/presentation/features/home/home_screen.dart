@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
 import '../../../core/extensions/context_x.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/async_guard.dart';
 import '../../../core/utils/date_x.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../domain/entities/achievement.dart';
@@ -41,20 +41,20 @@ class HomeScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.search_rounded),
             tooltip: 'Search',
-            onPressed: () => context.push(Routes.history),
+            onPressed: () => context.pushOnce(Routes.history),
           ),
           IconButton(
             icon: const Icon(Icons.notifications_none_rounded),
             tooltip: 'Reminders',
-            onPressed: () => context.push(Routes.notifications),
+            onPressed: () => context.pushOnce(Routes.notifications),
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert_rounded),
             onSelected: (value) => switch (value) {
-              'review' => context.push('${Routes.review}?day=$todayKey'),
-              'focus' => context.push(Routes.focus),
-              'insights' => context.push(Routes.insights),
-              _ => context.push(Routes.settings),
+              'review' => context.pushOnce('${Routes.review}?day=$todayKey'),
+              'focus' => context.pushOnce(Routes.focus),
+              'insights' => context.pushOnce(Routes.insights),
+              _ => context.pushOnce(Routes.settings),
             },
             itemBuilder: (context) => const [
               PopupMenuItem(
@@ -116,7 +116,7 @@ class HomeScreen extends ConsumerWidget {
                           'up to a ready-made day.',
                       actionLabel: 'Add task',
                       onAction: () =>
-                          context.push('${Routes.taskNew}?day=$todayKey'),
+                          context.pushOnce('${Routes.taskNew}?day=$todayKey'),
                     ),
                   )
                 else ...[
@@ -232,7 +232,7 @@ class _TaskRow extends ConsumerWidget {
         task: task,
         use24h: settings.use24HourClock,
         isCurrent: current?.id == task.id,
-        onTap: () => context.push(Routes.taskEdit(task.id)),
+        onTap: () => context.pushOnce(Routes.taskEdit(task.id)),
         onToggle: () => _complete(context, controller, task),
         onLongPress: () => _showActions(context, ref, task),
       ),
@@ -259,18 +259,22 @@ class _TaskRow extends ConsumerWidget {
     BuildContext context,
     TaskController controller,
     Task task,
-  ) async {
-    final unlocked = await controller.toggleComplete(task);
-    if (context.mounted && unlocked.isNotEmpty) {
-      showAchievementSnack(context, unlocked.first);
-    }
+  ) {
+    // Keyed by task: completing one row must not block completing another,
+    // but completing the same row twice would award its XP twice.
+    return OneShot.run('task.complete.${task.id}', () async {
+      final unlocked = await controller.toggleComplete(task);
+      if (context.mounted && unlocked.isNotEmpty) {
+        showAchievementSnack(context, unlocked.first);
+      }
+    });
   }
 
   Future<void> _showActions(
     BuildContext context,
     WidgetRef ref,
     Task task,
-  ) async {
+  ) => OneShot.run('task.actions.${task.id}', () async {
     final action = await showOptionsSheet<_TaskAction>(
       context,
       title: task.title,
@@ -305,7 +309,7 @@ class _TaskRow extends ConsumerWidget {
     final controller = ref.read(taskControllerProvider);
     switch (action) {
       case _TaskAction.focus:
-        context.push('${Routes.focus}?taskId=${task.id}');
+        context.pushOnce('${Routes.focus}?taskId=${task.id}');
       case _TaskAction.moveToTomorrow:
         await controller.reschedule(task, dayKey: DateX.tomorrowKey);
       case _TaskAction.duplicateToTomorrow:
@@ -313,7 +317,7 @@ class _TaskRow extends ConsumerWidget {
       case _TaskAction.skip:
         await controller.skip(task);
     }
-  }
+  });
 }
 
 /// The long-press menu on a task row.
@@ -425,6 +429,6 @@ void showAchievementSnack(BuildContext context, AchievementDefinition def) {
     icon: AppIcons.badge(def.iconKey),
     isSuccess: true,
     actionLabel: 'View',
-    onAction: () => context.push(Routes.achievements),
+    onAction: () => context.pushOnce(Routes.achievements),
   );
 }

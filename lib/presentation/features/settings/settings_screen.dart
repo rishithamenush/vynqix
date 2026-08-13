@@ -9,8 +9,10 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/extensions/context_x.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/async_guard.dart';
 import '../../../core/utils/date_x.dart';
 import '../../../core/utils/responsive.dart';
+import '../../../data/local/demo_data.dart';
 import '../../providers/app_providers.dart';
 import '../../providers/task_providers.dart';
 import '../../widgets/app_card.dart';
@@ -212,7 +214,7 @@ class SettingsScreen extends ConsumerWidget {
                   icon: Icons.workspace_premium_outlined,
                   label: 'Premium',
                   value: profile.isPremium ? 'Active' : 'Free',
-                  onTap: () => context.push(Routes.premium),
+                  onTap: () => context.pushOnce(Routes.premium),
                 ),
                 _NavRow(
                   icon: Icons.auto_awesome_outlined,
@@ -266,89 +268,104 @@ class SettingsScreen extends ConsumerWidget {
 
   /// Replaces the database with a year of generated history, so the app can be
   /// explored — or demoed — without spending months filling it in by hand.
-  Future<void> _loadSampleData(BuildContext context, WidgetRef ref) async {
-    final ok = await confirmDialog(
-      context,
-      title: 'Load sample data?',
-      message:
-          'Replaces everything with an example software engineer’s year: ten '
-          'months of finished and missed work, today already underway, and the '
-          'next two months planned. Your current data is deleted.',
-      confirmLabel: 'Replace with sample data',
-    );
-    if (!ok || !context.mounted) return;
+  ///
+  /// The blocking spinner this shows is the most dangerous widget in the app:
+  /// it refuses the barrier tap and the back gesture, so if it is ever left
+  /// standing the user cannot reach anything again. It is pushed as a route we
+  /// hold and removed in a `finally`, and the whole flow is single-flighted, so
+  /// neither a second tap nor a failed seed can strand it.
+  Future<void> _loadSampleData(BuildContext context, WidgetRef ref) {
+    return OneShot.run('settings.loadSampleData', () async {
+      final ok = await confirmDialog(
+        context,
+        title: 'Load sample data?',
+        message:
+            'Replaces everything with an example software engineer’s year: ten '
+            'months of finished and missed work, today already underway, and '
+            'the next two months planned. Your current data is deleted.',
+        confirmLabel: 'Replace with sample data',
+      );
+      if (!ok || !context.mounted) return;
 
-    final navigator = Navigator.of(context, rootNavigator: true);
-    unawaited(
-      showDialog<void>(
+      final navigator = Navigator.of(context, rootNavigator: true);
+      final spinner = DialogRoute<void>(
         context: context,
         barrierDismissible: false,
         builder: (_) => const PopScope(
           canPop: false,
           child: Center(child: CircularProgressIndicator()),
         ),
-      ),
-    );
-
-    final database = ref.read(databaseProvider);
-    final seeder = ref.read(demoDataSeederProvider);
-    final rewards = ref.read(rewardsUseCaseProvider);
-
-    await database.clearAll();
-    ref.read(profileRepositoryProvider).invalidateCache();
-    ref.read(settingsRepositoryProvider).invalidateCache();
-
-    final data = await seeder.seed();
-
-    // Backfill the badges the generated history has already earned, rather
-    // than dripping them out the next time the user completes something.
-    ref.read(profileRepositoryProvider).invalidateCache();
-    await rewards.grant(0);
-
-    ref.invalidate(profileProvider);
-    ref.invalidate(settingsProvider);
-    await ref.read(profileProvider.future);
-
-    navigator.pop();
-
-    if (context.mounted) {
-      context.showMessage(
-        '${data.tasks.length} tasks, ${data.dayLogs.length} daily reviews and '
-        '${data.focusSessions.length} focus sessions loaded.',
-        isSuccess: true,
-        icon: Icons.auto_awesome_outlined,
       );
-    }
+      navigator.push(spinner);
+
+      final DemoDataset data;
+      try {
+        final database = ref.read(databaseProvider);
+        final seeder = ref.read(demoDataSeederProvider);
+        final rewards = ref.read(rewardsUseCaseProvider);
+
+        await database.clearAll();
+        ref.read(profileRepositoryProvider).invalidateCache();
+        ref.read(settingsRepositoryProvider).invalidateCache();
+
+        data = await seeder.seed();
+
+        // Backfill the badges the generated history has already earned, rather
+        // than dripping them out the next time the user completes something.
+        ref.read(profileRepositoryProvider).invalidateCache();
+        await rewards.grant(0);
+
+        ref.invalidate(profileProvider);
+        ref.invalidate(settingsProvider);
+        await ref.read(profileProvider.future);
+      } finally {
+        // Removing the route we pushed, rather than popping whatever happens
+        // to be on top — by now that could be something else entirely.
+        navigator.removeRoute(spinner);
+      }
+
+      if (context.mounted) {
+        await context.showMessage(
+          '${data.tasks.length} tasks, ${data.dayLogs.length} daily reviews and '
+          '${data.focusSessions.length} focus sessions loaded.',
+          isSuccess: true,
+          icon: Icons.auto_awesome_outlined,
+        );
+      }
+    });
   }
 
-  Future<void> _reset(BuildContext context, WidgetRef ref) async {
-    final ok = await confirmDialog(
-      context,
-      title: 'Reset everything?',
-      message:
-          'All tasks, reviews, focus sessions, achievements and your profile '
-          'will be permanently deleted. This cannot be undone.',
-      confirmLabel: 'Delete everything',
-    );
-    if (!ok) return;
+  Future<void> _reset(BuildContext context, WidgetRef ref) {
+    return OneShot.run('settings.reset', () async {
+      final ok = await confirmDialog(
+        context,
+        title: 'Reset everything?',
+        message:
+            'All tasks, reviews, focus sessions, achievements and your profile '
+            'will be permanently deleted. This cannot be undone.',
+        confirmLabel: 'Delete everything',
+      );
+      if (!ok) return;
 
-    await ref.read(databaseProvider).clearAll();
+      await ref.read(databaseProvider).clearAll();
 
-    // Drop the memoised singletons before re-reading, or the deleted profile
-    // and settings would come straight back out of the caches.
-    ref.read(profileRepositoryProvider).invalidateCache();
-    ref.read(settingsRepositoryProvider).invalidateCache();
-    ref.invalidate(profileProvider);
-    ref.invalidate(settingsProvider);
+      // Drop the memoised singletons before re-reading, or the deleted profile
+      // and settings would come straight back out of the caches.
+      ref.read(profileRepositoryProvider).invalidateCache();
+      ref.read(settingsRepositoryProvider).invalidateCache();
+      ref.invalidate(profileProvider);
+      ref.invalidate(settingsProvider);
 
-    // Wait for the fresh (default) profile so the router's onboarding
-    // redirect sees the reset state rather than the stale one.
-    await ref.read(profileProvider.future);
+      // Wait for the fresh (default) profile so the router's onboarding
+      // redirect sees the reset state rather than the stale one.
+      await ref.read(profileProvider.future);
 
-    if (context.mounted) {
-      context.showMessage('All data deleted.');
-      context.go(Routes.welcome);
-    }
+      if (!context.mounted) return;
+      // Awaited, not fired and forgotten: `showMessage` pushes a dialog, so
+      // navigating underneath it while it is open leaves it orphaned.
+      await context.showMessage('All data deleted.');
+      if (context.mounted) context.go(Routes.welcome);
+    });
   }
 }
 

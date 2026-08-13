@@ -273,27 +273,46 @@ class TaskController {
   }
 
   /// Duplicates a task onto another day — the "plan tomorrow like today" path.
-  Future<void> duplicateTo(Task task, String dayKey) async {
+  Future<void> duplicateTo(Task task, String dayKey) =>
+      _repo.saveAll([_copyOf(task, dayKey)]);
+
+  /// Duplicates a whole day in one write.
+  ///
+  /// Copying task by task published a change notification per row, and every
+  /// list provider listening re-queried the database on each one. At a full
+  /// day's worth of tasks that quadratic burst is enough to lock the UI, so
+  /// bulk callers must go through here rather than looping over [duplicateTo].
+  Future<void> duplicateAllTo(List<Task> tasks, String dayKey) {
+    if (tasks.isEmpty) return Future.value();
+    return _repo.saveAll([for (final t in tasks) _copyOf(t, dayKey)]);
+  }
+
+  /// Applies a batch of already-timed tasks in one write. See [duplicateAllTo].
+  Future<void> rescheduleAll(List<Task> tasks) {
+    if (tasks.isEmpty) return Future.value();
     final now = DateTime.now();
-    await _repo.save(
-      Task(
-        id: newId(),
-        title: task.title,
-        description: task.description,
-        notes: task.notes,
-        iconKey: task.iconKey,
-        dayKey: dayKey,
-        category: task.category,
-        priority: task.priority,
-        startMinutes: task.startMinutes,
-        durationMinutes: task.durationMinutes,
-        tags: task.tags,
-        subtasks: task.subtasks.map((s) => s.copyWith(isDone: false)).toList(),
-        reminderMinutesBefore: task.reminderMinutesBefore,
-        sortIndex: task.sortIndex,
-        createdAt: now,
-        updatedAt: now,
-      ),
+    return _repo.saveAll([for (final t in tasks) t.copyWith(updatedAt: now)]);
+  }
+
+  Task _copyOf(Task task, String dayKey) {
+    final now = DateTime.now();
+    return Task(
+      id: newId(),
+      title: task.title,
+      description: task.description,
+      notes: task.notes,
+      iconKey: task.iconKey,
+      dayKey: dayKey,
+      category: task.category,
+      priority: task.priority,
+      startMinutes: task.startMinutes,
+      durationMinutes: task.durationMinutes,
+      tags: task.tags,
+      subtasks: task.subtasks.map((s) => s.copyWith(isDone: false)).toList(),
+      reminderMinutesBefore: task.reminderMinutesBefore,
+      sortIndex: task.sortIndex,
+      createdAt: now,
+      updatedAt: now,
     );
   }
 

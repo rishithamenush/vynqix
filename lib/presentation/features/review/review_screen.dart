@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
+import '../../../app/router.dart';
 import '../../../core/extensions/context_x.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -63,6 +63,7 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
   }
 
   Future<void> _save() async {
+    if (_saving) return;
     setState(() => _saving = true);
     final existing = await ref.read(dayLogProvider(widget.dayKey).future);
     final base = existing ?? DayLog.empty(widget.dayKey);
@@ -81,11 +82,10 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
           ),
         );
 
-    if (mounted) {
-      setState(() => _saving = false);
-      context.showMessage('Review saved.');
-      context.pop();
-    }
+    if (!mounted) return;
+    setState(() => _saving = false);
+    await context.showMessage('Review saved.');
+    if (mounted) context.popIfCurrent();
   }
 
   @override

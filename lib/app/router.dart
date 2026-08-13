@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/utils/async_guard.dart';
 import '../core/utils/date_x.dart';
 import '../presentation/features/achievements/achievements_screen.dart';
 import '../presentation/features/analytics/analytics_screen.dart';
@@ -195,6 +196,28 @@ final routerProvider = Provider<GoRouter>((ref) {
         Scaffold(body: Center(child: Text('Route not found: ${state.uri}'))),
   );
 });
+
+/// Navigation that survives an impatient user.
+///
+/// Screens call these instead of `push`/`pop` directly. Both failures they
+/// prevent look the same from the outside — the app stops responding to the
+/// button you just pressed — but they have different causes, so they need
+/// different guards. See `core/utils/async_guard.dart`.
+extension SafeNavigation on BuildContext {
+  /// [push], minus the second copy a double tap would stack on top.
+  void pushOnce(String location) {
+    if (NavThrottle.allow(location)) push(location);
+  }
+
+  /// [pop], but only when this route is the one on top.
+  ///
+  /// Handlers pop after an `await`, and by then the route may already be gone
+  /// — a second tap got there first, or the user pressed back while the write
+  /// was in flight. Popping anyway would take the screen underneath with it.
+  void popIfCurrent() {
+    if (ModalRoute.of(this)?.isCurrent ?? false) pop();
+  }
+}
 
 /// Sheet-style page used for the task editor, focus mode and paywall.
 Page<void> _modalPage(

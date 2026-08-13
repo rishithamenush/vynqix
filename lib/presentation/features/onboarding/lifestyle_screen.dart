@@ -6,6 +6,7 @@ import '../../../app/router.dart';
 import '../../../core/extensions/context_x.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/async_guard.dart';
 import '../../../core/utils/date_x.dart';
 import '../../../core/utils/responsive.dart';
 import '../../providers/app_providers.dart';
@@ -28,7 +29,7 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> {
   int _workEnd = 17 * 60;
   int _target = 5;
 
-  Future<void> _finish() async {
+  Future<void> _finish() => OneShot.run('onboarding.finish', () async {
     final notifier = ref.read(profileProvider.notifier);
     await notifier.edit(
       (p) => p.copyWith(
@@ -41,7 +42,7 @@ class _LifestyleScreenState extends ConsumerState<LifestyleScreen> {
     );
     await notifier.completeOnboarding();
     if (mounted) context.go(Routes.home);
-  }
+  });
 
   @override
   Widget build(BuildContext context) {

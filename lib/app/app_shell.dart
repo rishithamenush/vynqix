@@ -55,7 +55,7 @@ class AppShell extends StatelessWidget {
       body: shell,
       floatingActionButton: _showFab
           ? FloatingActionButton(
-              onPressed: () => context.push(Routes.taskNew),
+              onPressed: () => context.pushOnce(Routes.taskNew),
               tooltip: 'Add task',
               child: const Icon(Icons.add_rounded, size: 28),
             )
@@ -113,7 +113,7 @@ class AppShell extends StatelessWidget {
               ),
               child: _showFab
                   ? FloatingActionButton(
-                      onPressed: () => context.push(Routes.taskNew),
+                      onPressed: () => context.pushOnce(Routes.taskNew),
                       tooltip: 'Add task',
                       elevation: 0,
                       child: const Icon(Icons.add_rounded, size: 26),

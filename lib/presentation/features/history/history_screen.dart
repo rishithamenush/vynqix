@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
 import '../../../core/extensions/context_x.dart';
@@ -149,7 +148,7 @@ class _SearchResults extends ConsumerWidget {
               showDate: true,
               dense: true,
               use24h: settings.use24HourClock,
-              onTap: () => context.push(Routes.taskEdit(tasks[i].id)),
+              onTap: () => context.pushOnce(Routes.taskEdit(tasks[i].id)),
               onToggle: () =>
                   ref.read(taskControllerProvider).toggleComplete(tasks[i]),
             ),
@@ -209,7 +208,7 @@ class _DayHistory extends ConsumerWidget {
               final log = logsByDay[day.dayKey];
 
               return AppCard(
-                onTap: () => context.push('${Routes.review}?day=${day.dayKey}'),
+                onTap: () => context.pushOnce('${Routes.review}?day=${day.dayKey}'),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

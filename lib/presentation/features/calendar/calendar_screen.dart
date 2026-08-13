@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
 import '../../../core/extensions/context_x.dart';
@@ -57,7 +56,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           IconButton(
             icon: const Icon(Icons.history_rounded),
             tooltip: 'History',
-            onPressed: () => context.push(Routes.history),
+            onPressed: () => context.pushOnce(Routes.history),
           ),
         ],
       ),
@@ -96,7 +95,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     title: 'Nothing on ${DateX.relativeLabel(selected)}',
                     message: 'Tap the date and add something to do.',
                     actionLabel: 'Add task',
-                    onAction: () => context.push(
+                    onAction: () => context.pushOnce(
                       '${Routes.taskNew}?day=${selected.dayKey}',
                     ),
                   );
@@ -129,7 +128,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     return TaskCard(
                       task: task,
                       use24h: settings.use24HourClock,
-                      onTap: () => context.push(Routes.taskEdit(task.id)),
+                      onTap: () => context.pushOnce(Routes.taskEdit(task.id)),
                       onToggle: () =>
                           ref.read(taskControllerProvider).toggleComplete(task),
                     );

@@ -109,15 +109,19 @@ class FocusController extends Notifier<FocusState> {
   Future<void> start() async {
     if (state.status == TimerStatus.running) return;
 
-    var next = state;
     if (state.sessionId == null) {
       final id = newId();
       final now = DateTime.now();
-      next = state.copyWith(
+      // Published before the write, not after. The guard above only holds if
+      // the state it reads is already up to date — with the assignment after
+      // the `await`, a second tap arriving mid-write saw `idle`, passed the
+      // check, and opened a second session row for the same block.
+      state = state.copyWith(
         sessionId: id,
         startedAt: now,
         status: TimerStatus.running,
       );
+      _startTicker();
       await ref
           .read(focusSessionRepositoryProvider)
           .save(
@@ -131,11 +135,9 @@ class FocusController extends Notifier<FocusState> {
             ),
           );
     } else {
-      next = state.copyWith(status: TimerStatus.running);
+      state = state.copyWith(status: TimerStatus.running);
+      _startTicker();
     }
-
-    state = next;
-    _startTicker();
 
     // Mark the linked task as in-progress so the home screen reflects it.
     final taskId = state.taskId;

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
 import '../../../core/extensions/context_x.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/async_guard.dart';
 import '../../../core/utils/date_x.dart';
 import '../../../core/utils/responsive.dart';
 import '../../../domain/entities/task.dart';
@@ -77,7 +77,7 @@ class PlannerScreen extends ConsumerWidget {
                     message: 'Build the day now and start it already decided.',
                     actionLabel: 'Add a task',
                     onAction: () =>
-                        context.push('${Routes.taskNew}?day=$dayKey'),
+                        context.pushOnce('${Routes.taskNew}?day=$dayKey'),
                   );
                 }
                 return PageBody(
@@ -96,7 +96,7 @@ class PlannerScreen extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     String targetKey,
-  ) async {
+  ) => OneShot.run('planner.copyFromToday', () async {
     if (targetKey == DateX.todayKey) {
       context.showMessage('Pick a different day to copy today into.');
       return;
@@ -106,20 +106,20 @@ class PlannerScreen extends ConsumerWidget {
       if (context.mounted) context.showMessage('Today has no tasks to copy.');
       return;
     }
-    final controller = ref.read(taskControllerProvider);
-    for (final task in today) {
-      await controller.duplicateTo(task, targetKey);
-    }
+    // One write for the whole copy. Saving in a loop fired a change
+    // notification per task, and every list provider re-queried the database
+    // on each one — quadratic work that locked the UI on a full day.
+    await ref.read(taskControllerProvider).duplicateAllTo(today, targetKey);
     if (context.mounted) {
       context.showMessage('Copied ${today.length} tasks.');
     }
-  }
+  });
 
   Future<void> _autoSchedule(
     BuildContext context,
     WidgetRef ref,
     String dayKey,
-  ) async {
+  ) => OneShot.run('planner.autoSchedule', () async {
     final tasks = await ref.read(tasksForDayProvider(dayKey).future);
     final profile = ref.read(profileValueProvider);
     final controller = ref.read(taskControllerProvider);
@@ -133,7 +133,7 @@ class PlannerScreen extends ConsumerWidget {
     }
 
     var placed = [...tasks.where((t) => t.isScheduled)];
-    var count = 0;
+    final scheduled = <Task>[];
     for (final task in unscheduled) {
       final start = ScheduleService.suggestStart(
         dayTasks: placed,
@@ -141,12 +141,15 @@ class PlannerScreen extends ConsumerWidget {
         durationMinutes: task.durationMinutes,
       );
       if (start == null) break;
-      final scheduled = task.copyWith(startMinutes: start);
-      await controller.reschedule(task, startMinutes: start);
-      placed = [...placed, scheduled];
-      count++;
+      final withTime = task.copyWith(startMinutes: start);
+      scheduled.add(withTime);
+      placed = [...placed, withTime];
     }
 
+    // Persisted in one batch for the same reason as the copy above.
+    if (scheduled.isNotEmpty) await controller.rescheduleAll(scheduled);
+
+    final count = scheduled.length;
     if (context.mounted) {
       context.showMessage(
         count == 0
@@ -154,7 +157,7 @@ class PlannerScreen extends ConsumerWidget {
             : 'Scheduled $count ${count == 1 ? 'task' : 'tasks'}.',
       );
     }
-  }
+  });
 }
 
 /// Reorderable list, split into timed and untimed sections.
@@ -232,7 +235,7 @@ class _PlannerList extends ConsumerWidget {
                         task: task,
                         dense: true,
                         use24h: settings.use24HourClock,
-                        onTap: () => context.push(Routes.taskEdit(task.id)),
+                        onTap: () => context.pushOnce(Routes.taskEdit(task.id)),
                         onToggle: () => controller.toggleComplete(task),
                       ),
                     ),
@@ -298,7 +301,7 @@ class _TimelineRow extends ConsumerWidget {
               TaskCard(
                 task: task,
                 use24h: use24h,
-                onTap: () => context.push(Routes.taskEdit(task.id)),
+                onTap: () => context.pushOnce(Routes.taskEdit(task.id)),
                 onToggle: () => controller.toggleComplete(task),
               ),
               if (conflicts.isNotEmpty)
